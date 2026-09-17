@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -71,6 +72,16 @@ public class ReservationController {
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationDto create(@RequestBody CreateReservationRequest req) {
         return dao.createReservation(req);
+    }
+
+    @PutMapping("/reservations/{id}")
+    public ResponseEntity<ReservationDto> update(
+            @PathVariable String id,
+            @RequestBody CreateReservationRequest req) {
+        ReservationDto updated = dao.updateReservation(id, req);
+        return updated == null
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/reservations/{id}")

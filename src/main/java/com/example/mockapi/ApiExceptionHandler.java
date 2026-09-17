@@ -21,6 +21,7 @@ public class ApiExceptionHandler {
         HttpStatus status = switch (sqlState == null ? "" : sqlState) {
             case "23P01" -> HttpStatus.CONFLICT;      // exclusion_violation -> otaq həmin vaxtda dolu
             case "P0001" -> HttpStatus.BAD_REQUEST;   // raise exception -> keçmiş tarix / bitmə<başlama
+            case "23514" -> HttpStatus.BAD_REQUEST;   // check_violation -> end_after_start
             default       -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
         return build(status, cleanMessage(root.getMessage()), sqlState);
