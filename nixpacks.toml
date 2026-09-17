@@ -1,0 +1,9 @@
+# Railway (Nixpacks) build & run config for the Spring Boot API.
+[phases.setup]
+nixPkgs = ["jdk21", "maven"]
+
+[phases.build]
+cmds = ["mvn -DskipTests clean package"]
+
+[start]
+cmd = "java -jar target/app.jar"
