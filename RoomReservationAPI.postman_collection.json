@@ -1,0 +1,344 @@
+{
+  "info": {
+    "name": "Room Reservation API",
+    "description": "Railway-də hostlanan Otaq Rezervasiya API-si (Supabase üzərində). baseUrl dəyişənini öz Railway URL-inlə əvəzlə. Sıra ilə işlət (Run collection): userId və resId avtomatik doldurulur.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://mock-api-production-itba.up.railway.app", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" },
+    { "key": "resId", "value": "", "type": "string" },
+    { "key": "seedDate", "value": "2026-08-11", "type": "string" },
+    { "key": "futureDate", "value": "2027-01-15", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health — GET /",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('status ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rooms — GET /api/rooms",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/rooms", "host": ["{{baseUrl}}"], "path": ["api", "rooms"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const rooms = pm.response.json();",
+              "pm.test('5 otaq gəlir', () => pm.expect(rooms.length).to.eql(5));",
+              "pm.test('features massivdir', () => pm.expect(rooms[0].features).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users — GET /api/users",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const users = pm.response.json();",
+              "pm.test('istifadəçi var', () => pm.expect(users.length).to.be.above(0));",
+              "pm.collectionVariables.set('userId', users[0].id);",
+              "console.log('userId =', users[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations — GET (hamısı)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/reservations", "host": ["{{baseUrl}}"], "path": ["api", "reservations"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('massiv qayıdır', () => pm.expect(pm.response.json()).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations — GET (filtrli)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reservations?date={{seedDate}}&roomId=R1&status=active&sort=date",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "reservations"],
+          "query": [
+            { "key": "date", "value": "{{seedDate}}" },
+            { "key": "roomId", "value": "R1" },
+            { "key": "status", "value": "active" },
+            { "key": "sort", "value": "date" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const list = pm.response.json();",
+              "pm.test('yalnız R1 / active', () => list.every(r => r.roomId === 'R1' && r.status === 'active'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Availability — GET (R1, seed günü)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/availability?roomId=R1&date={{seedDate}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "availability"],
+          "query": [
+            { "key": "roomId", "value": "R1" },
+            { "key": "date", "value": "{{seedDate}}" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const slots = pm.response.json();",
+              "pm.test('9 slot', () => pm.expect(slots.length).to.eql(9));",
+              "pm.test('dolu slot var (busyTitle)', () => pm.expect(slots.some(s => !s.free && s.busyTitle)).to.be.true);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conflict — GET (DOLU, 10:00-11:00)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/conflict?roomId=R1&date={{seedDate}}&start=10:00&end=11:00",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "conflict"],
+          "query": [
+            { "key": "roomId", "value": "R1" },
+            { "key": "date", "value": "{{seedDate}}" },
+            { "key": "start", "value": "10:00" },
+            { "key": "end", "value": "11:00" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('conflict = true', () => pm.expect(pm.response.json().conflict).to.be.true);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conflict — GET (BOŞ, 12:00-13:00)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/conflict?roomId=R1&date={{seedDate}}&start=12:00&end=13:00",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "conflict"],
+          "query": [
+            { "key": "roomId", "value": "R1" },
+            { "key": "date", "value": "{{seedDate}}" },
+            { "key": "start", "value": "12:00" },
+            { "key": "end", "value": "13:00" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('conflict = false', () => pm.expect(pm.response.json().conflict).to.be.false);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create — POST (uğurlu, 201)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"roomId\": \"R1\",\n  \"userId\": \"{{userId}}\",\n  \"date\": \"{{futureDate}}\",\n  \"start\": \"10:00\",\n  \"end\": \"11:00\",\n  \"title\": \"Postman test\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/reservations", "host": ["{{baseUrl}}"], "path": ["api", "reservations"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json();",
+              "pm.collectionVariables.set('resId', r.id);",
+              "console.log('yeni resId =', r.id);",
+              "pm.test('status active', () => pm.expect(r.status).to.eql('active'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create — POST (KONFLIKT, 409)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"roomId\": \"R1\",\n  \"userId\": \"{{userId}}\",\n  \"date\": \"{{futureDate}}\",\n  \"start\": \"10:30\",\n  \"end\": \"11:30\",\n  \"title\": \"Konflikt testi\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/reservations", "host": ["{{baseUrl}}"], "path": ["api", "reservations"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('409 Conflict', () => pm.response.to.have.status(409));",
+              "pm.test('sqlState 23P01', () => pm.expect(pm.response.json().sqlState).to.eql('23P01'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create — POST (KEÇMİŞ TARİX, 400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"roomId\": \"R1\",\n  \"userId\": \"{{userId}}\",\n  \"date\": \"2020-01-01\",\n  \"start\": \"10:00\",\n  \"end\": \"11:00\",\n  \"title\": \"Keçmiş tarix\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/reservations", "host": ["{{baseUrl}}"], "path": ["api", "reservations"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('400 Bad Request', () => pm.response.to.have.status(400));",
+              "pm.test('sqlState P0001', () => pm.expect(pm.response.json().sqlState).to.eql('P0001'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cancel — DELETE (yaradılan rezerv)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reservations/{{resId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "reservations", "{{resId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('status cancelled', () => pm.expect(pm.response.json().status).to.eql('cancelled'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cancel — DELETE (təkrar → 404)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/reservations/{{resId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "reservations", "{{resId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
