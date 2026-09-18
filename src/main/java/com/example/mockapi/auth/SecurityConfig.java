@@ -34,9 +34,25 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/", "/api/auth/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/auth/register").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/auth/users").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/auth/users/**").hasRole("ADMIN")
+                // öz məlumatı və parolu — hər login olan üçün
+                .requestMatchers("/api/auth/me", "/api/auth/change-password").authenticated()
+                // istifadəçi idarəetməsi
+                .requestMatchers(HttpMethod.POST,   "/api/auth/register").hasAuthority("PERM_USER_MANAGE")
+                .requestMatchers(HttpMethod.GET,    "/api/auth/users").hasAuthority("PERM_USER_MANAGE")
+                .requestMatchers(HttpMethod.DELETE, "/api/auth/users/**").hasAuthority("PERM_USER_MANAGE")
+                // rol/icazə idarəetməsi
+                .requestMatchers("/api/auth/roles/**", "/api/auth/permissions").hasAuthority("PERM_ROLE_MANAGE")
+                // rezervasiya yazma
+                .requestMatchers(HttpMethod.POST,   "/api/reservations").hasAuthority("PERM_RESERVATION_WRITE")
+                .requestMatchers(HttpMethod.PUT,    "/api/reservations/**").hasAuthority("PERM_RESERVATION_WRITE")
+                .requestMatchers(HttpMethod.DELETE, "/api/reservations/**").hasAuthority("PERM_RESERVATION_WRITE")
+                // rezervasiya oxuma
+                .requestMatchers(HttpMethod.GET, "/api/rooms",
+                                                  "/api/reservations",
+                                                  "/api/reservations/**",
+                                                  "/api/availability",
+                                                  "/api/conflict",
+                                                  "/api/users").hasAuthority("PERM_RESERVATION_READ")
                 .anyRequest().authenticated())
             .exceptionHandling(eh -> eh
                 .authenticationEntryPoint((request, response, ex) -> {

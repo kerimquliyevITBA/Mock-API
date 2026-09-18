@@ -62,6 +62,44 @@ public class AuthDao {
         return n != null && n > 0;
     }
 
+    public List<String> permissionsForRole(String roleName) {
+        return jdbc.query(
+                "select p.code from permissions p "
+                        + "join role_permissions rp on rp.permission_id = p.id "
+                        + "join roles r on r.id = rp.role_id "
+                        + "where r.name = ? order by p.code",
+                (rs, i) -> rs.getString("code"),
+                roleName);
+    }
+
+    public List<String> listAllPermissions() {
+        return jdbc.query("select code from permissions order by code",
+                (rs, i) -> rs.getString("code"));
+    }
+
+    public record RoleWithPerms(String name, List<String> permissions) {}
+
+    public List<RoleWithPerms> listRolesWithPermissions() {
+        List<String> roles = jdbc.query("select name from roles order by name",
+                (rs, i) -> rs.getString("name"));
+        return roles.stream().map(n -> new RoleWithPerms(n, permissionsForRole(n))).toList();
+    }
+
+    public void setRolePermissions(String roleName, List<String> permissionCodes) {
+        Integer roleId = jdbc.queryForObject("select id from roles where name = ?", Integer.class, roleName);
+        if (roleId == null) {
+            throw new IllegalArgumentException("Belə rol yoxdur: " + roleName);
+        }
+        jdbc.update("delete from role_permissions where role_id = ?", roleId);
+        for (String code : permissionCodes) {
+            jdbc.update(
+                    "insert into role_permissions(role_id, permission_id) "
+                            + "values (?, (select id from permissions where code = ?)) "
+                            + "on conflict do nothing",
+                    roleId, code);
+        }
+    }
+
     public List<AppUserDto> listUsers() {
         return jdbc.query(
                 "select u.id, u.username, r.name as role, u.created_at "

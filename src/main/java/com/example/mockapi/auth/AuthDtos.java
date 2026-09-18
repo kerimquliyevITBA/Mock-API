@@ -4,7 +4,8 @@ public class AuthDtos {
 
     public record LoginRequest(String username, String password) {}
 
-    public record LoginResponse(String accessToken, String tokenType, String username, String role, long expiresInMs) {}
+    public record LoginResponse(String accessToken, String tokenType, String username, String role,
+                                java.util.List<String> permissions, long expiresInMs) {}
 
     public record RegisterRequest(String username, String password, String role) {}
 
