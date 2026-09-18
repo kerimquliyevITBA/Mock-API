@@ -45,12 +45,40 @@ public class AuthController {
         }
         Credentials c = found.get();
         String role = c.role() == null ? "USER" : c.role();
-        return new LoginResponse(jwt.generate(c.username(), role), "Bearer", c.username(), role, jwt.getExpiryMs());
+        List<String> perms = dao.permissionsForRole(role);
+        return new LoginResponse(jwt.generate(c.username(), role, perms), "Bearer",
+                c.username(), role, perms, jwt.getExpiryMs());
     }
 
     @GetMapping("/me")
     public Map<String, Object> me(Authentication auth) {
-        return Map.of("username", auth.getName(), "role", roleOf(auth));
+        List<String> perms = auth.getAuthorities().stream()
+                .map(a -> a.getAuthority())
+                .filter(a -> a.startsWith("PERM_"))
+                .map(a -> a.substring("PERM_".length()))
+                .toList();
+        return Map.of("username", auth.getName(), "role", roleOf(auth), "permissions", perms);
+    }
+
+    @GetMapping("/permissions")
+    public List<String> allPermissions() {
+        return dao.listAllPermissions();
+    }
+
+    @GetMapping("/roles")
+    public List<AuthDao.RoleWithPerms> allRoles() {
+        return dao.listRolesWithPermissions();
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/roles/{name}/permissions")
+    public AuthDao.RoleWithPerms setRolePerms(@PathVariable String name,
+                                              @RequestBody Map<String, List<String>> body) {
+        List<String> codes = body.getOrDefault("permissions", List.of());
+        // yalnız mövcud kodları qəbul et
+        var known = new java.util.HashSet<>(dao.listAllPermissions());
+        List<String> valid = codes.stream().filter(known::contains).toList();
+        dao.setRolePermissions(name.toUpperCase(), valid);
+        return new AuthDao.RoleWithPerms(name.toUpperCase(), dao.permissionsForRole(name.toUpperCase()));
     }
 
     @PostMapping("/register")

@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -34,8 +36,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if (role == null || role.isBlank()) {
                     role = "USER";
                 }
-                var auth = new UsernamePasswordAuthenticationToken(
-                        username, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+                Object rawPerms = claims.get("perms");
+                if (rawPerms instanceof List<?> list) {
+                    for (Object p : list) {
+                        if (p != null) {
+                            authorities.add(new SimpleGrantedAuthority("PERM_" + Objects.toString(p)));
+                        }
+                    }
+                }
+                var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception ignored) {
                 // invalid/expired token -> request stays unauthenticated
