@@ -42,6 +42,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/auth/users/**").hasAuthority("PERM_USER_MANAGE")
                 // rol/icazə idarəetməsi
                 .requestMatchers("/api/auth/roles/**", "/api/auth/permissions").hasAuthority("PERM_ROLE_MANAGE")
+                // audit logları
+                .requestMatchers("/api/audit/**").hasAuthority("PERM_AUDIT_READ")
                 // rezervasiya yazma
                 .requestMatchers(HttpMethod.POST,   "/api/reservations").hasAuthority("PERM_RESERVATION_WRITE")
                 .requestMatchers(HttpMethod.PUT,    "/api/reservations/**").hasAuthority("PERM_RESERVATION_WRITE")

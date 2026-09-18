@@ -22,7 +22,8 @@ insert into permissions (code) values
   ('USER_MANAGE'),        -- app_users yaratmaq/silmək/siyahı
   ('ROLE_MANAGE'),        -- rolun icazələrini dəyişmək
   ('RESERVATION_READ'),   -- rooms/reservations/availability/... GET
-  ('RESERVATION_WRITE')   -- reservations POST/PUT/DELETE
+  ('RESERVATION_WRITE'),  -- reservations POST/PUT/DELETE
+  ('AUDIT_READ')          -- audit loglarını oxumaq
 on conflict (code) do nothing;
 
 -- ---- ROLE_PERMISSIONS ----
@@ -56,3 +57,16 @@ update app_users set role_id = (select id from roles where name='USER') where ro
 
 -- Qeyd: seed (test/123 = ADMIN) API tərəfindən edilir. Parolu düz mətnlə
 -- DB-yə YAZMAYIN — yeni istifadəçini API ilə yaradın: POST /api/auth/register.
+
+-- ---- AUDIT LOGS ----
+create table if not exists audit_logs (
+  id         bigserial primary key,
+  username   text,
+  role       text,
+  method     text not null,
+  path       text not null,
+  status     int not null,
+  detail     text,
+  ip         text,
+  created_at timestamptz not null default now()
+);

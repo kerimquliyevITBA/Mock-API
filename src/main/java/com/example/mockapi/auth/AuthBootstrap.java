@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class AuthBootstrap implements CommandLineRunner {
 
     static final String[] ALL_PERMISSIONS = {
-            "USER_MANAGE", "ROLE_MANAGE", "RESERVATION_READ", "RESERVATION_WRITE"
+            "USER_MANAGE", "ROLE_MANAGE", "RESERVATION_READ", "RESERVATION_WRITE", "AUDIT_READ"
     };
     static final String[] USER_DEFAULT_PERMISSIONS = {
             "RESERVATION_READ", "RESERVATION_WRITE"
@@ -101,5 +101,20 @@ public class AuthBootstrap implements CommandLineRunner {
                             + "values (?, ?, (select id from roles where name='ADMIN'))",
                     "test", encoder.encode("123"));
         }
+
+        // audit_logs
+        jdbc.execute("""
+            create table if not exists audit_logs (
+              id         bigserial primary key,
+              username   text,
+              role       text,
+              method     text not null,
+              path       text not null,
+              status     int not null,
+              detail     text,
+              ip         text,
+              created_at timestamptz not null default now()
+            )
+            """);
     }
 }
