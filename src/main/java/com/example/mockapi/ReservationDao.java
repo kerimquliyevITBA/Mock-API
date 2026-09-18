@@ -112,6 +112,18 @@ public class ReservationDao {
         return getReservationById(newId);
     }
 
+    // ---- update an active reservation in place (keeps the same id) ----
+    // The no_active_overlap exclusion constraint still guards conflicts (23P01),
+    // and end_after_start guards the time range (23514).
+    public ReservationDto updateReservation(String id, CreateReservationRequest req) {
+        int rows = jdbc.update(
+                "update reservations set room_id = ?, user_id = ?::uuid, res_date = ?::date, "
+                        + "start_time = ?::time, end_time = ?::time, title = ? "
+                        + "where id = ? and status = 'active'",
+                req.roomId(), req.userId(), req.date(), req.start(), req.end(), req.title(), id);
+        return rows == 0 ? null : getReservationById(id);
+    }
+
     // ---- cancel: cancel_reservation(id) RPC ----
     // The function returns a single composite row; when nothing is updated
     // (id not found or not active) that row's id is NULL -> treat as "not cancelled".

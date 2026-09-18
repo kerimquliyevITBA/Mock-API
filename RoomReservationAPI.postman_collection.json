@@ -1,0 +1,190 @@
+{
+  "info": {
+    "name": "Room Reservation API (Auth)",
+    "description": "Railway-də hostlanan Otaq Rezervasiya API-si (Supabase + JWT auth). baseUrl-i öz Railway URL-inlə əvəzlə. 'Auth > Login (test)' sorğusunu işlət — token avtomatik saxlanır və bütün digər sorğulara əlavə olunur. Sıra ilə işlət (Run collection).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://mock-api-production-itba.up.railway.app" },
+    { "key": "token", "value": "" },
+    { "key": "role", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "resId", "value": "" },
+    { "key": "seedDate", "value": "2026-08-11" },
+    { "key": "futureDate", "value": "2027-01-15" },
+    { "key": "newAuthUser", "value": "postman_user" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (test)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"test\",\n  \"password\": \"123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.collectionVariables.set('token', b.accessToken);",
+            "pm.collectionVariables.set('role', b.role);",
+            "pm.test('token gəldi', () => pm.expect(b.accessToken).to.be.a('string'));",
+            "console.log('role =', b.role);"
+          ] } } ]
+        },
+        {
+          "name": "Me",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api","auth","me"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));"
+          ] } } ]
+        },
+        {
+          "name": "Token olmadan rooms → 401",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/rooms", "host": ["{{baseUrl}}"], "path": ["api","rooms"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"
+          ] } } ]
+        },
+        {
+          "name": "Register (ADMIN) — yeni USER",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{newAuthUser}}\",\n  \"password\": \"parol123\",\n  \"role\": \"USER\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api","auth","register"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('201 və ya 409 (varsa)', () => pm.expect([201,409]).to.include(pm.response.code));"
+          ] } } ]
+        },
+        {
+          "name": "Users list (ADMIN)",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/auth/users", "host": ["{{baseUrl}}"], "path": ["api","auth","users"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));"
+          ] } } ]
+        },
+        {
+          "name": "Change password (öz)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"oldPassword\": \"123\",\n  \"newPassword\": \"123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/change-password", "host": ["{{baseUrl}}"], "path": ["api","auth","change-password"] }
+          },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));"
+          ] } } ]
+        },
+        {
+          "name": "Delete user (ADMIN)",
+          "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/api/auth/users/{{newAuthUser}}", "host": ["{{baseUrl}}"], "path": ["api","auth","users","{{newAuthUser}}"] } },
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('204 və ya 404', () => pm.expect([204,404]).to.include(pm.response.code));"
+          ] } } ]
+        }
+      ]
+    },
+    {
+      "name": "Rooms — GET",
+      "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/rooms", "host": ["{{baseUrl}}"], "path": ["api","rooms"] } },
+      "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));",
+        "pm.test('5 otaq', () => pm.expect(pm.response.json().length).to.eql(5));"
+      ] } } ]
+    },
+    {
+      "name": "Users (rezerv üçün) — GET",
+      "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api","users"] } },
+      "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));",
+        "const u = pm.response.json();",
+        "if(u.length) pm.collectionVariables.set('userId', u[0].id);"
+      ] } } ]
+    },
+    {
+      "name": "Reservations — GET (filtrli)",
+      "request": { "method": "GET", "header": [], "url": {
+        "raw": "{{baseUrl}}/api/reservations?date={{seedDate}}&roomId=R1&status=active&sort=date",
+        "host": ["{{baseUrl}}"], "path": ["api","reservations"],
+        "query": [ { "key": "date", "value": "{{seedDate}}" }, { "key": "roomId", "value": "R1" }, { "key": "status", "value": "active" }, { "key": "sort", "value": "date" } ]
+      } },
+      "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('200 OK', () => pm.response.to.have.status(200));" ] } } ]
+    },
+    {
+      "name": "Availability — GET",
+      "request": { "method": "GET", "header": [], "url": {
+        "raw": "{{baseUrl}}/api/availability?roomId=R1&date={{seedDate}}",
+        "host": ["{{baseUrl}}"], "path": ["api","availability"],
+        "query": [ { "key": "roomId", "value": "R1" }, { "key": "date", "value": "{{seedDate}}" } ]
+      } },
+      "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('200 OK', () => pm.response.to.have.status(200));" ] } } ]
+    },
+    {
+      "name": "Conflict — GET (dolu)",
+      "request": { "method": "GET", "header": [], "url": {
+        "raw": "{{baseUrl}}/api/conflict?roomId=R1&date={{seedDate}}&start=10:00&end=11:00",
+        "host": ["{{baseUrl}}"], "path": ["api","conflict"],
+        "query": [ { "key": "roomId", "value": "R1" }, { "key": "date", "value": "{{seedDate}}" }, { "key": "start", "value": "10:00" }, { "key": "end", "value": "11:00" } ]
+      } },
+      "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));",
+        "pm.test('conflict=true', () => pm.expect(pm.response.json().conflict).to.be.true);"
+      ] } } ]
+    },
+    {
+      "name": "Create — POST (201)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"roomId\": \"R1\",\n  \"userId\": \"{{userId}}\",\n  \"date\": \"{{futureDate}}\",\n  \"start\": \"10:00\",\n  \"end\": \"11:00\",\n  \"title\": \"Postman test\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/reservations", "host": ["{{baseUrl}}"], "path": ["api","reservations"] }
+      },
+      "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created', () => pm.response.to.have.status(201));",
+        "pm.collectionVariables.set('resId', pm.response.json().id);"
+      ] } } ]
+    },
+    {
+      "name": "Update — PUT (200)",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"roomId\": \"R1\",\n  \"userId\": \"{{userId}}\",\n  \"date\": \"{{futureDate}}\",\n  \"start\": \"11:00\",\n  \"end\": \"12:00\",\n  \"title\": \"Postman yeniləndi\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/reservations/{{resId}}", "host": ["{{baseUrl}}"], "path": ["api","reservations","{{resId}}"] }
+      },
+      "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('200 OK', () => pm.response.to.have.status(200));" ] } } ]
+    },
+    {
+      "name": "Create — POST KONFLIKT (409)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"roomId\": \"R1\",\n  \"userId\": \"{{userId}}\",\n  \"date\": \"{{futureDate}}\",\n  \"start\": \"11:00\",\n  \"end\": \"12:00\",\n  \"title\": \"Konflikt\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/reservations", "host": ["{{baseUrl}}"], "path": ["api","reservations"] }
+      },
+      "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('409 Conflict', () => pm.response.to.have.status(409));"
+      ] } } ]
+    },
+    {
+      "name": "Cancel — DELETE (200)",
+      "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/api/reservations/{{resId}}", "host": ["{{baseUrl}}"], "path": ["api","reservations","{{resId}}"] } },
+      "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('200 OK', () => pm.response.to.have.status(200));" ] } } ]
+    }
+  ]
+}
