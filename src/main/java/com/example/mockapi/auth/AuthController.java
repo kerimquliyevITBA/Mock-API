@@ -52,12 +52,12 @@ public class AuthController {
 
     @GetMapping("/me")
     public Map<String, Object> me(Authentication auth) {
-        List<String> perms = auth.getAuthorities().stream()
-                .map(a -> a.getAuthority())
-                .filter(a -> a.startsWith("PERM_"))
-                .map(a -> a.substring("PERM_".length()))
-                .toList();
-        return Map.of("username", auth.getName(), "role", roleOf(auth), "permissions", perms);
+        // Freş DB oxu: admin rolun icazələrini dəyişəndə istifadəçi yenidən login etmədən də effekt görsün.
+        String role = dao.findByUsername(auth.getName())
+                .map(c -> c.role() == null ? "USER" : c.role())
+                .orElse(roleOf(auth));
+        List<String> perms = dao.permissionsForRole(role);
+        return Map.of("username", auth.getName(), "role", role, "permissions", perms);
     }
 
     @GetMapping("/permissions")
