@@ -28,9 +28,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             try {
-                String username = jwtService.parse(header.substring(7)).getPayload().getSubject();
+                var claims = jwtService.parse(header.substring(7)).getPayload();
+                String username = claims.getSubject();
+                String role = claims.get("role", String.class);
+                if (role == null || role.isBlank()) {
+                    role = "USER";
+                }
                 var auth = new UsernamePasswordAuthenticationToken(
-                        username, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                        username, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception ignored) {
                 // invalid/expired token -> request stays unauthenticated

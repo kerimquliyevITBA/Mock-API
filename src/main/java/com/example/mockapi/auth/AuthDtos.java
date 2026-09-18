@@ -4,13 +4,13 @@ public class AuthDtos {
 
     public record LoginRequest(String username, String password) {}
 
-    public record LoginResponse(String accessToken, String tokenType, String username, long expiresInMs) {}
+    public record LoginResponse(String accessToken, String tokenType, String username, String role, long expiresInMs) {}
 
-    public record RegisterRequest(String username, String password) {}
+    public record RegisterRequest(String username, String password, String role) {}
 
     public record ChangePasswordRequest(String oldPassword, String newPassword) {}
 
-    public record AppUserDto(String id, String username, String createdAt) {}
+    public record AppUserDto(String id, String username, String role, String createdAt) {}
 
     private AuthDtos() {}
 }

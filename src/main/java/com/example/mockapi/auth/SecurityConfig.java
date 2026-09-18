@@ -34,12 +34,21 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/", "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/register").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/auth/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/auth/users/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
-            .exceptionHandling(eh -> eh.authenticationEntryPoint((request, response, ex) -> {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.setContentType("application/json");
-                response.getWriter().write("{\"status\":401,\"error\":\"Giriş tələb olunur\"}");
-            }))
+            .exceptionHandling(eh -> eh
+                .authenticationEntryPoint((request, response, ex) -> {
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"status\":401,\"error\":\"Giriş tələb olunur\"}");
+                })
+                .accessDeniedHandler((request, response, ex) -> {
+                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"status\":403,\"error\":\"Bu əməliyyat üçün icazəniz yoxdur\"}");
+                }))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(b -> b.disable())
             .formLogin(f -> f.disable());
