@@ -26,7 +26,7 @@ public class ServiceController {
 
     @GetMapping("/admin/services")
     public List<ServiceDto.ServiceView> adminList() {
-        return repo.findAllByOrderByNameAsc().stream().map(ServiceDto.ServiceView::of).toList();
+        return repo.findByActiveTrueOrderByNameAsc().stream().map(ServiceDto.ServiceView::of).toList();
     }
 
     @PostMapping("/admin/services")
