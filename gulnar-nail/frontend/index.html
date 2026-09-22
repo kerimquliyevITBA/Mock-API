@@ -1055,7 +1055,7 @@ async function adminCancel(id){
 
 /* ---------- init ---------- */
 function fillPrefixes(){
-  ["c-prefix","s-prefix"].forEach(id=>{ const s=document.getElementById(id); if(s) s.innerHTML=AZ_PREFIXES.map(p=>`<option value="${p}">${p}</option>`).join(""); });
+  ["c-prefix","s-prefix"].forEach(id=>{ const s=document.getElementById(id); if(s) s.innerHTML=AZ_PREFIXES.map(p=>`<option value="${p}">${p.replace(/^0/,"")}</option>`).join(""); });
 }
 fillPrefixes();
 const sPhoneEl=document.getElementById("s-phone");
