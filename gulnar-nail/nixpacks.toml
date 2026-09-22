@@ -1,10 +1,16 @@
 providers = ["java"]
 
 [phases.setup]
-nixPkgs = ["jdk21", "maven"]
+nixPkgs = ["jdk21"]
 
 [phases.build]
-cmds = ["mvn -B -DskipTests clean package"]
+cmds = [
+    "chmod +x ./mvnw",
+    "./mvnw -B -DskipTests clean package"
+]
 
 [start]
 cmd = "java -jar target/app.jar"
+
+[variables]
+JAVA_VERSION = "21"
