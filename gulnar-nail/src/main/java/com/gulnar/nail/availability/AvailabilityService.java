@@ -49,6 +49,9 @@ public class AvailabilityService {
             throw new ResponseStatusException(BAD_REQUEST, "Xidmət müddəti " + STEP_MIN + " dəqiqənin misli olmalıdır");
 
         List<AvailabilityDay> ds = days.findByDateBetweenOrderByDateAsc(from, to);
+        List<AvailabilityInterval> allIntervals = intervals.findByDateRange(from, to);
+        Map<Long, List<AvailabilityInterval>> ivByDayId = allIntervals.stream()
+                .collect(Collectors.groupingBy(iv -> iv.getDay().getId()));
         List<Reservation> res = reservations.findByReservationDateBetweenAndStatus(from, to, ReservationStatus.ACTIVE);
         Map<LocalDate, List<Reservation>> resByDate = res.stream()
                 .collect(Collectors.groupingBy(Reservation::getReservationDate));
@@ -58,7 +61,7 @@ public class AvailabilityService {
 
         List<AvailabilityDto.DayView> out = new ArrayList<>();
         for (AvailabilityDay d : ds) {
-            List<AvailabilityInterval> is = new ArrayList<>(d.getIntervals());
+            List<AvailabilityInterval> is = new ArrayList<>(ivByDayId.getOrDefault(d.getId(), List.of()));
             is.sort(Comparator.comparing(AvailabilityInterval::getStartTime));
             List<AvailabilityDto.IntervalView> intervalViews = is.stream()
                     .map(i -> new AvailabilityDto.IntervalView(i.getId(), i.getStartTime(), i.getEndTime()))
