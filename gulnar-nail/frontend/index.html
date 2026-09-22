@@ -246,9 +246,10 @@
   .mono { font-variant-numeric: tabular-nums; }
   .row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 
-  .modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: grid; place-items: center; padding: 20px; }
-  .modal { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow-lift); max-width: 380px; width: 100%; overflow: hidden; }
-  .modal .m-body { padding: 20px; }
+  .modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: grid; place-items: center; padding: 20px; overflow-y: auto; }
+  .modal { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow-lift); max-width: 380px; width: 100%; max-height: calc(100vh - 40px); display: flex; flex-direction: column; overflow: hidden; }
+  .modal .panel-head { flex: none; }
+  .modal .m-body { padding: 20px; overflow-y: auto; flex: 1 1 auto; -webkit-overflow-scrolling: touch; }
   .modal h4 { font-size: 18px; margin-bottom: 4px; }
 
   .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-strong); border-top-color: var(--plum); animation: spin .8s linear infinite; display: inline-block; vertical-align: middle; }
@@ -379,7 +380,7 @@
         <div class="panel-head"><span class="step">🔒</span><h3>Admin girişi</h3></div>
         <div class="panel-body">
           <div class="field"><label for="a-user">İstifadəçi</label><input id="a-user" type="text" placeholder="admin" autocomplete="username"></div>
-          <div class="field"><label for="a-pass">Şifrə</label><input id="a-pass" type="password" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()"><span class="hint">Default demo: <b>admin</b> / <b>1234</b> (env-lə dəyişilir).</span></div>
+          <div class="field"><label for="a-pass">Şifrə</label><input id="a-pass" type="password" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()"></div>
           <button class="btn" onclick="adminLogin()">Daxil ol</button>
         </div>
       </div>
