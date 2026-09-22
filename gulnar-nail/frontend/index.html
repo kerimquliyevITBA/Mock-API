@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<style>
+  :root { color-scheme: light dark; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  html, body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Gülnar Nail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ground: #FBF7F5;
+    --surface: #FFFFFF;
+    --surface-2: #F5EEEA;
+    --ink: #2A2126;
+    --ink-soft: #6B5B62;
+    --ink-faint: #9C8B92;
+    --line: #EADFD9;
+    --line-strong: #D9C8C0;
+    --plum: #7D2E4D;
+    --plum-deep: #5E2039;
+    --plum-tint: #F3E5EC;
+    --gold: #C9A96A;
+    --gold-tint: #F6EFE0;
+    --ok: #3E7C5A;
+    --ok-tint: #E3F0E8;
+    --warn: #B5762A;
+    --warn-tint: #F7EEDD;
+    --danger: #B03A3A;
+    --danger-tint: #F6E4E2;
+    --shadow: 0 1px 2px rgba(42,33,38,.06), 0 8px 24px -12px rgba(42,33,38,.18);
+    --shadow-lift: 0 2px 6px rgba(42,33,38,.08), 0 20px 40px -20px rgba(42,33,38,.28);
+    --r: 14px;
+    --r-sm: 10px;
+    --font-d: "Fraunces", Georgia, serif;
+    --font-b: "Inter", system-ui, -apple-system, sans-serif;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --ground: #171216; --surface: #201820; --surface-2: #2A1F28;
+      --ink: #F4EBEF; --ink-soft: #C4AEB9; --ink-faint: #8E7681;
+      --line: #34262F; --line-strong: #45333D;
+      --plum: #E68AAE; --plum-deep: #F2AECB; --plum-tint: #33212B;
+      --gold: #D8BC82; --gold-tint: #2E2418;
+      --ok: #79C79C; --ok-tint: #1E2E25; --warn: #E0A653; --warn-tint: #302514;
+      --danger: #E88A8A; --danger-tint: #331E1E;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+      --shadow-lift: 0 2px 6px rgba(0,0,0,.5), 0 20px 40px -20px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #171216; --surface: #201820; --surface-2: #2A1F28;
+    --ink: #F4EBEF; --ink-soft: #C4AEB9; --ink-faint: #8E7681;
+    --line: #34262F; --line-strong: #45333D;
+    --plum: #E68AAE; --plum-deep: #F2AECB; --plum-tint: #33212B;
+    --gold: #D8BC82; --gold-tint: #2E2418;
+    --ok: #79C79C; --ok-tint: #1E2E25; --warn: #E0A653; --warn-tint: #302514;
+    --danger: #E88A8A; --danger-tint: #331E1E;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    --shadow-lift: 0 2px 6px rgba(0,0,0,.5), 0 20px 40px -20px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font-b); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, h4 { font-family: var(--font-d); font-weight: 500; margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+  button { font-family: inherit; cursor: pointer; }
+  input, select { font-family: inherit; font-size: 15px; }
+
+  .wrap { max-width: 1000px; margin: 0 auto; padding-inline: 20px; }
+
+  .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; background: color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .topbar-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand .mark { font-family: var(--font-d); font-size: 22px; font-weight: 600; color: var(--plum); letter-spacing: -.02em; }
+  .brand .mark i { font-style: italic; color: var(--gold); }
+  .brand .sub { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: var(--ink-faint); }
+  .top-actions { display: flex; align-items: center; gap: 8px; }
+
+  .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+  .seg button { border: 0; background: transparent; color: var(--ink-soft); padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; transition: all .15s; }
+  .seg button[aria-selected="true"] { background: var(--surface); color: var(--plum); box-shadow: var(--shadow); }
+
+  .icon-btn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft); display: grid; place-items: center; font-size: 16px; transition: all .15s; }
+  .icon-btn:hover { color: var(--plum); border-color: var(--line-strong); }
+
+  main { padding-block: 28px 64px; }
+
+  .hero { display: grid; gap: 6px; margin-bottom: 26px; }
+  .hero .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .16em; color: var(--gold); font-weight: 600; }
+  .hero h1 { font-size: clamp(28px, 6vw, 42px); line-height: 1.05; }
+  .hero h1 em { font-style: italic; color: var(--plum); }
+  .hero p { color: var(--ink-soft); max-width: 52ch; margin-top: 4px; }
+
+  .booking { display: grid; grid-template-columns: 1.15fr .85fr; gap: 20px; align-items: start; }
+  @media (max-width: 760px) { .booking { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+  .panel-head { padding: 16px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+  .panel-head .step { width: 24px; height: 24px; border-radius: 50%; background: var(--plum); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; flex: none; }
+  :root[data-theme="dark"] .panel-head .step { color: var(--ground); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .panel-head .step { color: var(--ground); } }
+  .panel-head h3 { font-size: 17px; }
+  .panel-body { padding: 18px; }
+
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .cal-nav .month { font-family: var(--font-d); font-size: 17px; font-weight: 500; }
+  .cal-nav button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft); font-size: 15px; }
+  .cal-nav button:hover:not(:disabled) { border-color: var(--plum); color: var(--plum); }
+  .cal-nav button:disabled { opacity: .35; cursor: not-allowed; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dow { text-align: center; font-size: 11px; font-weight: 600; color: var(--ink-faint); padding-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+  .cal-day { aspect-ratio: 1; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--ink); font-size: 14px; font-weight: 500; position: relative; display: grid; place-items: center; transition: all .12s; }
+  .cal-day:hover:not(:disabled) { background: var(--surface-2); }
+  .cal-day.empty { visibility: hidden; }
+  .cal-day.closed { color: var(--ink-faint); text-decoration: line-through; cursor: not-allowed; }
+  .cal-day.past { color: var(--ink-faint); opacity: .4; cursor: not-allowed; }
+  .cal-day.selected { background: var(--plum); color: #fff; font-weight: 700; }
+  :root[data-theme="dark"] .cal-day.selected { color: var(--ground); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cal-day.selected { color: var(--ground); } }
+  .cal-day.has-slots::after { content: ""; position: absolute; bottom: 5px; width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+  .cal-day.selected.has-slots::after { background: rgba(255,255,255,.9); }
+  .cal-day.today { box-shadow: inset 0 0 0 1.5px var(--gold); }
+  .cal-legend { display: flex; gap: 16px; margin-top: 14px; font-size: 12px; color: var(--ink-soft); flex-wrap: wrap; }
+  .cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .slots-empty { color: var(--ink-faint); font-size: 14px; text-align: center; padding: 32px 12px; }
+  .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+  .slot { padding: 11px 8px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); transition: all .12s; }
+  .slot:hover:not(:disabled) { border-color: var(--plum); color: var(--plum); }
+  .slot.selected { background: var(--plum-tint); border-color: var(--plum); color: var(--plum); }
+  .slot.taken { background: var(--surface-2); color: var(--ink-faint); cursor: not-allowed; text-decoration: line-through; }
+
+  .field { display: grid; gap: 6px; margin-bottom: 14px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .field input, .field select { padding: 11px 13px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); transition: border-color .15s; width: 100%; }
+  .field input:focus-visible, .field select:focus-visible { outline: none; border-color: var(--plum); box-shadow: 0 0 0 3px var(--plum-tint); }
+  .field .hint { font-size: 12px; color: var(--ink-faint); }
+
+  .phone-input { display: flex; gap: 8px; align-items: stretch; }
+  .phone-input .cc-fixed { display: inline-flex; align-items: center; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface-2); color: var(--ink-soft); font-weight: 600; font-variant-numeric: tabular-nums; flex: none; }
+  .phone-input .prefix-sel { flex: none; width: 86px; padding: 11px 8px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font-variant-numeric: tabular-nums; }
+  .phone-input input { flex: 1; min-width: 0; padding: 11px 13px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font-variant-numeric: tabular-nums; }
+  .phone-input input:focus-visible, .phone-input .prefix-sel:focus-visible { outline: none; border-color: var(--plum); box-shadow: 0 0 0 3px var(--plum-tint); }
+
+  .summary { background: var(--surface-2); border-radius: var(--r-sm); padding: 14px; margin-bottom: 16px; display: grid; gap: 8px; }
+  .summary .row { display: flex; justify-content: space-between; font-size: 14px; }
+  .summary .row .k { color: var(--ink-soft); }
+  .summary .row .v { font-weight: 600; }
+  .summary .placeholder { color: var(--ink-faint); font-size: 14px; }
+
+  .btn { width: 100%; padding: 13px; border-radius: var(--r-sm); border: 0; background: var(--plum); color: #fff; font-size: 15px; font-weight: 700; transition: all .15s; }
+  :root[data-theme="dark"] .btn { color: var(--ground); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: var(--ground); } }
+  .btn:hover:not(:disabled) { background: var(--plum-deep); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.ghost { background: transparent; border: 1px solid var(--line-strong); color: var(--ink); }
+  .btn.ghost:hover { border-color: var(--plum); color: var(--plum); background: transparent; }
+  .btn.sm { width: auto; padding: 9px 16px; font-size: 14px; }
+
+  .toast-wrap { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 100; display: grid; gap: 8px; width: min(92vw, 420px); }
+  .toast { background: var(--ink); color: var(--ground); padding: 13px 16px; border-radius: 12px; box-shadow: var(--shadow-lift); font-size: 14px; display: flex; gap: 10px; align-items: flex-start; animation: rise .25s ease; }
+  .toast.ok { background: var(--ok); color: #fff; }
+  .toast.warn { background: var(--warn); color: #fff; }
+  .toast.err { background: var(--danger); color: #fff; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+  .confirm { text-align: center; padding: 24px 8px; }
+  .confirm .check { width: 56px; height: 56px; border-radius: 50%; background: var(--ok-tint); color: var(--ok); display: grid; place-items: center; margin: 0 auto 14px; font-size: 26px; }
+  .confirm h3 { font-size: 22px; margin-bottom: 6px; }
+  .confirm p { color: var(--ink-soft); margin: 0 auto 14px; max-width: 42ch; }
+  .code-box { background: var(--plum-tint); border: 1px dashed var(--plum); border-radius: var(--r-sm); padding: 16px; margin: 0 auto 16px; max-width: 320px; }
+  .code-box .cl { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: var(--plum); font-weight: 700; }
+  .code-box .cc { font-family: var(--font-d); font-size: 32px; font-weight: 600; color: var(--plum); letter-spacing: .1em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .code-box .copy { margin-top: 8px; font-size: 12px; }
+
+  .status-card { max-width: 460px; margin: 0 auto; }
+  .status-result { margin-top: 16px; }
+  .st-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+  .st-badge.ok { background: var(--ok-tint); color: var(--ok); }
+  .st-badge.cancel { background: var(--danger-tint); color: var(--danger); }
+  .st-badge.done { background: var(--surface-2); color: var(--ink-soft); }
+  .st-detail { background: var(--surface-2); border-radius: var(--r-sm); padding: 16px; margin-top: 14px; display: grid; gap: 10px; }
+  .st-detail .row { display: flex; justify-content: space-between; font-size: 14px; }
+  .st-detail .row .k { color: var(--ink-soft); }
+  .st-detail .row .v { font-weight: 600; }
+
+  .admin-gate { max-width: 380px; margin: 40px auto; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
+  @media (max-width: 560px) { .stats { grid-template-columns: 1fr 1fr; } }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow); }
+  .stat .n { font-family: var(--font-d); font-size: 30px; font-weight: 600; color: var(--plum); font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .l { font-size: 12px; color: var(--ink-soft); margin-top: 6px; text-transform: uppercase; letter-spacing: .06em; }
+
+  .section-label { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--gold); font-weight: 600; margin-bottom: 4px; }
+  .admin-sub { color: var(--ink-soft); font-size: 14px; margin: 2px 0 16px; }
+
+  .avail-editor { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 820px) { .avail-editor { grid-template-columns: 1fr; } }
+  .avail-slots-panel .day-title { font-family: var(--font-d); font-size: 18px; font-weight: 500; margin-bottom: 2px; }
+  .avail-slots-panel .day-sub { font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; }
+  .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .chip { padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface); font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink-soft); transition: all .12s; position: relative; }
+  .chip[aria-pressed="true"] { background: var(--plum); border-color: var(--plum); color: #fff; }
+  :root[data-theme="dark"] .chip[aria-pressed="true"] { color: var(--ground); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip[aria-pressed="true"] { color: var(--ground); } }
+  .chip.booked { border-color: var(--gold); }
+  .chip.booked::after { content: "•"; position: absolute; top: -2px; right: 4px; color: var(--gold); font-size: 16px; }
+  .add-slot-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 8px; flex-wrap: wrap; }
+  .add-slot-row .field { margin: 0; flex: 1; min-width: 120px; }
+  .closed-note { background: var(--danger-tint); color: var(--danger); border-radius: var(--r-sm); padding: 12px 14px; font-size: 13px; margin-bottom: 14px; }
+  .day-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .svc-list { display: grid; gap: 8px; }
+  .svc-item { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 11px 14px; background: var(--surface); }
+  .svc-item .sn { flex: 1; font-weight: 600; font-size: 14px; }
+  .svc-item .sp { font-family: var(--font-d); font-weight: 600; color: var(--plum); font-variant-numeric: tabular-nums; }
+  .svc-item .del { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink-faint); font-size: 14px; flex: none; }
+  .svc-item .del:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-tint); }
+  .svc-empty { color: var(--ink-faint); font-size: 14px; padding: 8px 0; }
+
+  .sched-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); }
+  table.sched { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 13px; }
+  table.sched th, table.sched td { border: 1px solid var(--line); padding: 0; text-align: center; }
+  table.sched thead th { background: var(--surface-2); padding: 10px 8px; font-family: var(--font-b); font-weight: 600; font-size: 12px; color: var(--ink-soft); position: sticky; top: 0; }
+  table.sched thead th.today { color: var(--plum); background: var(--plum-tint); }
+  table.sched th.time-col { background: var(--surface-2); font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); width: 60px; padding: 8px; position: sticky; left: 0; z-index: 2; }
+  table.sched thead th:first-child { position: sticky; left: 0; z-index: 3; }
+  .cell { min-height: 40px; padding: 6px 5px; display: flex; flex-direction: column; gap: 2px; justify-content: center; height: 100%; }
+  .cell.closed { background: repeating-linear-gradient(45deg, transparent, transparent 5px, var(--surface-2) 5px, var(--surface-2) 10px); }
+  .cell.free { color: var(--ink-faint); }
+  .cell.booked { background: var(--plum-tint); cursor: pointer; }
+  .cell.booked .nm { font-weight: 700; color: var(--plum); font-size: 12px; line-height: 1.2; }
+  .cell.booked .ph { font-size: 11px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .cell .dash { color: var(--line-strong); }
+  .legend-row { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--ink-soft); margin-top: 12px; }
+  .legend-row span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line); }
+
+  .mono { font-variant-numeric: tabular-nums; }
+  .row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  .modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: grid; place-items: center; padding: 20px; }
+  .modal { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow-lift); max-width: 380px; width: 100%; overflow: hidden; }
+  .modal .m-body { padding: 20px; }
+  .modal h4 { font-size: 18px; margin-bottom: 4px; }
+
+  .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-strong); border-top-color: var(--plum); animation: spin .8s linear infinite; display: inline-block; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .api-cfg { position: fixed; bottom: 12px; right: 12px; z-index: 60; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 11px; color: var(--ink-faint); box-shadow: var(--shadow); display: flex; gap: 8px; align-items: center; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brand">
+      <span class="mark">Gülnar<i>·</i>Nail</span>
+      <span class="sub">Studio</span>
+    </div>
+    <div class="top-actions">
+      <div class="seg" role="tablist" aria-label="Görünüş">
+        <button role="tab" id="tab-book" aria-selected="true" onclick="setView('book')">Rezervasiya</button>
+        <button role="tab" id="tab-status" aria-selected="false" onclick="setView('status')">Status</button>
+        <button role="tab" id="tab-admin" aria-selected="false" onclick="setView('admin')">Admin</button>
+      </div>
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Tema" title="Tema dəyiş">◐</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <!-- ================= BOOKING ================= -->
+  <div class="wrap" id="view-book">
+    <div class="hero">
+      <span class="eyebrow">Onlayn qeydiyyat</span>
+      <p>Qeydiyyat üçün gün və saatı seçin, ad və nömrənizi yazın.</p>
+    </div>
+
+    <div class="booking" id="booking-flow">
+      <div class="panel">
+        <div class="panel-head"><span class="step">1</span><h3>Gün və saat</h3></div>
+        <div class="panel-body">
+          <div class="cal-nav">
+            <button id="cal-prev" onclick="calMove(-1)" aria-label="Əvvəlki ay">‹</button>
+            <span class="month" id="cal-month"></span>
+            <button id="cal-next" onclick="calMove(1)" aria-label="Növbəti ay">›</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="cal-legend">
+            <span><i class="dot" style="background:var(--gold)"></i> Boş yer var</span>
+            <span><i class="dot" style="background:var(--line-strong)"></i> Bağlı gün</span>
+          </div>
+          <div style="margin-top:20px">
+            <div class="section-label" id="slots-label" style="display:none">Saatlar — <span id="slots-date"></span></div>
+            <div id="slots-container"><div class="slots-empty">Başlamaq üçün təqvimdən bir gün seçin.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="step">2</span><h3>Məlumatlarınız</h3></div>
+        <div class="panel-body">
+          <div class="summary" id="summary"><div class="placeholder">Seçim etdikcə burada görünəcək.</div></div>
+          <div class="field">
+            <label for="c-service">Xidmət</label>
+            <select id="c-service"></select>
+          </div>
+          <div class="field">
+            <label for="c-name">Ad, Soyad</label>
+            <input id="c-name" type="text" placeholder="Nərmin Əliyeva" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="c-phone">Mobil nömrə</label>
+            <div class="phone-input">
+              <span class="cc-fixed">+994</span>
+              <select id="c-prefix" class="prefix-sel" aria-label="Prefiks"></select>
+              <input id="c-phone" type="tel" placeholder="1234567" autocomplete="tel-national" inputmode="numeric" maxlength="7">
+            </div>
+            <span class="hint">Kod bu nömrə ilə birlikdə statusa baxmaq üçün istifadə ediləcək.</span>
+          </div>
+          <button class="btn" id="submit-btn" onclick="submitBooking()" disabled>Rezervasiyanı təsdiqlə</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="confirm-panel" hidden style="max-width:520px;margin-inline:auto">
+      <div class="panel-body confirm">
+        <div class="check">✓</div>
+        <h3>Rezervasiyanız alındı</h3>
+        <p id="confirm-text"></p>
+        <div class="code-box">
+          <div class="cl">Rezervasiya kodu</div>
+          <div class="cc" id="confirm-code"></div>
+          <button class="btn ghost sm copy" onclick="copyCode()">Kodu kopyala</button>
+        </div>
+        <button class="btn ghost" onclick="resetBooking()">Yeni rezervasiya</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STATUS ================= -->
+  <div class="wrap" id="view-status" hidden>
+    <div class="hero">
+      <span class="eyebrow">Rezervasiya statusu</span>
+      <h1>Kodunuzla <em>yoxlayın</em></h1>
+      <p>Təsdiq zamanı aldığınız kodu və qeydiyyatda yazdığınız nömrəni daxil edin.</p>
+    </div>
+    <div class="panel status-card">
+      <div class="panel-body">
+        <div class="field">
+          <label for="s-code">Rezervasiya kodu</label>
+          <input id="s-code" type="text" placeholder="GN-4821" autocomplete="off" style="text-transform:uppercase" onkeydown="if(event.key==='Enter')checkStatus()">
+        </div>
+        <div class="field">
+          <label for="s-phone">Mobil nömrə</label>
+          <div class="phone-input">
+            <span class="cc-fixed">+994</span>
+            <select id="s-prefix" class="prefix-sel" aria-label="Prefiks"></select>
+            <input id="s-phone" type="tel" placeholder="1234567" inputmode="numeric" maxlength="7" onkeydown="if(event.key==='Enter')checkStatus()">
+          </div>
+        </div>
+        <button class="btn" onclick="checkStatus()">Statusu göstər</button>
+        <div class="status-result" id="status-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN ================= -->
+  <div class="wrap" id="view-admin" hidden>
+    <div id="admin-gate" class="admin-gate">
+      <div class="panel">
+        <div class="panel-head"><span class="step">🔒</span><h3>Admin girişi</h3></div>
+        <div class="panel-body">
+          <div class="field"><label for="a-user">İstifadəçi</label><input id="a-user" type="text" placeholder="admin" autocomplete="username"></div>
+          <div class="field"><label for="a-pass">Şifrə</label><input id="a-pass" type="password" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()"><span class="hint">Default demo: <b>admin</b> / <b>1234</b> (env-lə dəyişilir).</span></div>
+          <button class="btn" onclick="adminLogin()">Daxil ol</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="admin-dash" hidden>
+      <div class="row-between" style="margin-bottom:6px">
+        <div><div class="section-label">İdarə paneli</div><h1 style="font-size:26px">Xoş gəldiniz, <span id="admin-name">Admin</span></h1></div>
+        <button class="btn ghost sm" onclick="adminLogout()">Çıxış</button>
+      </div>
+      <p class="admin-sub">İstənilən günü açıb saatları əlavə edin; rezervləri cədvəldə izləyin.</p>
+
+      <div class="stats" id="admin-stats"></div>
+
+      <div class="panel" style="margin-bottom:22px">
+        <div class="panel-head"><h3>Günlər və saatlar</h3></div>
+        <div class="panel-body">
+          <div class="avail-editor">
+            <div>
+              <div class="cal-nav">
+                <button id="acal-prev" onclick="acalMove(-1)" aria-label="Əvvəlki ay">‹</button>
+                <span class="month" id="acal-month"></span>
+                <button id="acal-next" onclick="acalMove(1)" aria-label="Növbəti ay">›</button>
+              </div>
+              <div class="cal-grid" id="acal-grid"></div>
+              <div class="cal-legend">
+                <span><i class="dot" style="background:var(--gold)"></i> Saat var</span>
+                <span><i class="dot" style="background:var(--line-strong)"></i> Boş</span>
+              </div>
+            </div>
+            <div class="avail-slots-panel" id="avail-slots-panel">
+              <div class="slots-empty">Saat əlavə etmək üçün təqvimdən gün seçin.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:22px">
+        <div class="panel-head"><h3>Xidmətlər və qiymətlər</h3></div>
+        <div class="panel-body">
+          <p class="admin-sub" style="margin-top:0">Müştərilər rezervasiya edərkən bu xidmətlərdən seçəcək.</p>
+          <div id="svc-list" class="svc-list"></div>
+          <div class="add-slot-row" style="margin-top:14px">
+            <div class="field"><label for="svc-name">Xidmət adı</label><input id="svc-name" type="text" placeholder="Məs: French manikür"></div>
+            <div class="field" style="max-width:140px"><label for="svc-price">Qiymət (₼)</label><input id="svc-price" type="number" min="0" step="1" placeholder="30" inputmode="numeric"></div>
+            <div class="field" style="max-width:140px"><label for="svc-dur">Müddət (dəq)</label><input id="svc-dur" type="number" min="15" step="15" placeholder="60" inputmode="numeric"></div>
+            <button class="btn sm" onclick="addService()">Əlavə et</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Cədvəl — kim, hansı saata</h3></div>
+        <div class="panel-body">
+          <div class="row-between" style="margin-bottom:14px">
+            <p class="admin-sub" style="margin:0">Cari həftə. Dolu xanaya klikləyib rezervi idarə edin.</p>
+            <div style="display:flex;gap:8px">
+              <button class="btn ghost sm" onclick="schedWeek(-1)">‹ Əvvəlki</button>
+              <button class="btn ghost sm" onclick="schedWeek(0)">Bu həftə</button>
+              <button class="btn ghost sm" onclick="schedWeek(1)">Növbəti ›</button>
+            </div>
+          </div>
+          <div class="sched-scroll"><table class="sched" id="sched-table"></table></div>
+          <div class="legend-row">
+            <span><i class="sw" style="background:var(--plum-tint);border-color:var(--plum)"></i> Rezerv olunub</span>
+            <span><i class="sw" style="background:var(--surface)"></i> Boş (açıq saat)</span>
+            <span><i class="sw" style="background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--surface-2) 3px,var(--surface-2) 6px)"></i> Bağlı</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast-wrap" id="toasts"></div>
+<div id="modal-root"></div>
+<div class="api-cfg" title="API endpoint"><span>API:</span> <span id="api-cfg-url">—</span></div>
+
+<script>
+/* ============================================================
+   Gülnar Nail — API-backed frontend
+   API base is configurable at runtime:
+     1. window.API_BASE (set below or via a <script>)
+     2. ?api=... URL param   (?api=https://your-railway.app)
+     3. localStorage["gulnar_api_base"]
+     4. Default: current origin
+   ============================================================ */
+(function () {
+  var url = new URL(location.href);
+  var qp = url.searchParams.get("api");
+  if (qp) { try { localStorage.setItem("gulnar_api_base", qp); } catch(e){} }
+  var stored = null; try { stored = localStorage.getItem("gulnar_api_base"); } catch(e){}
+  window.API_BASE = window.API_BASE || qp || stored || location.origin;
+})();
+document.getElementById("api-cfg-url").textContent = window.API_BASE;
+
+const AZ_MONTHS = ["Yanvar","Fevral","Mart","Aprel","May","İyun","İyul","Avqust","Sentyabr","Oktyabr","Noyabr","Dekabr"];
+const AZ_DOW = ["B.e","Ç.a","Çər","C.a","Cüm","Şən","Baz"];
+const AZ_DOW_LONG = ["Bazar ertəsi","Çərşənbə axşamı","Çərşənbə","Cümə axşamı","Cümə","Şənbə","Bazar"];
+const AZ_PREFIXES = ["050","051","055","070","077","099","010"];
+
+function keyOf(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function digitsOnly(s){ return String(s).replace(/\D/g,""); }
+function money(n){ if(n==null) return "—"; var num = typeof n==="string"?parseFloat(n):n; return num.toLocaleString("az-AZ")+" ₼"; }
+function parseKey(k){ const [y,m,d]=k.split("-").map(Number); return new Date(y,m-1,d); }
+function todayKey(){ return keyOf(new Date()); }
+function mondayIndex(d){ return (d.getDay()+6)%7; }
+function fmtDate(d){ return d.getDate()+" "+AZ_MONTHS[d.getMonth()]; }
+function fmtLong(d){ return d.getDate()+" "+AZ_MONTHS[d.getMonth()]+", "+AZ_DOW_LONG[mondayIndex(d)]; }
+function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ---------- toast ---------- */
+function toast(msg,kind){
+  const t=document.createElement("div"); t.className="toast"+(kind?" "+kind:""); t.textContent=msg;
+  document.getElementById("toasts").appendChild(t);
+  setTimeout(()=>t.remove(),3800);
+}
+
+/* ---------- fetch wrapper ---------- */
+async function api(path, opts) {
+  opts = opts || {};
+  const headers = Object.assign({}, opts.headers || {});
+  if (opts.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+  const t = getToken();
+  if (t) headers["Authorization"] = "Bearer " + t;
+  let res;
+  try {
+    res = await fetch(window.API_BASE + path, {
+      method: opts.method || "GET",
+      headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+    });
+  } catch (e) {
+    throw { status: 0, message: "Şəbəkə xətası: " + e.message };
+  }
+  if (res.status === 204) return null;
+  const ct = res.headers.get("content-type") || "";
+  const data = ct.includes("application/json") ? await res.json().catch(()=>null) : await res.text().catch(()=>null);
+  if (!res.ok) {
+    const msg = (data && data.message) ? data.message : ("HTTP "+res.status);
+    throw { status: res.status, message: msg, data };
+  }
+  return data;
+}
+
+/* ---------- auth ---------- */
+function getToken(){ try { return sessionStorage.getItem("gulnar_token"); } catch(e){ return null; } }
+function setToken(t){ try { if(t) sessionStorage.setItem("gulnar_token", t); else sessionStorage.removeItem("gulnar_token"); } catch(e){} }
+function getAdmin(){ try { return JSON.parse(sessionStorage.getItem("gulnar_admin") || "null"); } catch(e){ return null; } }
+function setAdmin(a){ try { if(a) sessionStorage.setItem("gulnar_admin", JSON.stringify(a)); else sessionStorage.removeItem("gulnar_admin"); } catch(e){} }
+
+/* ---------- state ---------- */
+let calCursor=new Date(); calCursor.setDate(1);
+let acalCursor=new Date(); acalCursor.setDate(1);
+let sel={date:null,time:null,serviceId:null};
+let adminSelDate=null;
+let schedMon=null;
+let lastCode=null;
+
+// Cached data
+let services=[];              // active services for public
+let adminServices=[];         // full services for admin
+let availabilityMap={};       // key: YYYY-MM-DD -> {closed, note, slots:[{time,taken,past}]}
+let adminAvailabilityMap={};  // admin view (includes past)
+let reservationsList=[];      // admin reservations for current schedule week
+
+/* ---------- theme ---------- */
+function toggleTheme(){ const cur=document.documentElement.getAttribute("data-theme"); const isDark=cur?cur==="dark":matchMedia("(prefers-color-scheme: dark)").matches; document.documentElement.setAttribute("data-theme",isDark?"light":"dark"); try{localStorage.setItem("gulnar_theme",isDark?"light":"dark");}catch(e){} }
+try{ const t=localStorage.getItem("gulnar_theme"); if(t) document.documentElement.setAttribute("data-theme",t); }catch(e){}
+
+/* ---------- view switch ---------- */
+function setView(v){
+  ["book","status","admin"].forEach(x=>{ document.getElementById("view-"+x).hidden=x!==v; document.getElementById("tab-"+x).setAttribute("aria-selected",x===v); });
+  if(v==="book"){ loadPublicMonth(calCursor); }
+  if(v==="admin"){
+    const a=getAdmin();
+    if(a){ document.getElementById("admin-gate").hidden=true; document.getElementById("admin-dash").hidden=false; document.getElementById("admin-name").textContent=a.fullName||a.username||"Admin"; renderAdmin(); }
+    else { document.getElementById("admin-gate").hidden=false; document.getElementById("admin-dash").hidden=true; }
+  }
+}
+
+/* ================= PUBLIC: services + availability ================= */
+async function loadPublicServices() {
+  try {
+    services = await api("/api/v1/services");
+    fillServiceSelect();
+  } catch (e) {
+    toast("Xidmətləri yükləmək alınmadı: "+e.message,"err");
+  }
+}
+function fillServiceSelect() {
+  const cs = document.getElementById("c-service");
+  if (!cs) return;
+  if (!services.length) {
+    cs.innerHTML='<option value="">Xidmət yoxdur</option>';
+    sel.serviceId=null;
+  } else {
+    cs.innerHTML = services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} — ${money(s.price)}</option>`).join("");
+    if (!sel.serviceId || !services.some(s=>s.id===sel.serviceId)) sel.serviceId = services[0].id;
+    cs.value = sel.serviceId;
+  }
+  renderSummary();
+}
+
+async function loadPublicMonth(cursor) {
+  const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  const last  = new Date(cursor.getFullYear(), cursor.getMonth()+1, 0);
+  const from = keyOf(first), to = keyOf(last);
+  try {
+    const list = await api(`/api/v1/availability?from=${from}&to=${to}`);
+    availabilityMap = {};
+    list.forEach(d => { availabilityMap[d.date] = d; });
+  } catch (e) {
+    availabilityMap = {};
+    toast("Təqvim yüklənmədi: "+e.message,"err");
+  }
+  renderCal();
+}
+
+function openSlotsFor(k){ const d=availabilityMap[k]; if(!d||d.closed) return []; return d.slots||[]; }
+function freeSlotsFor(k){ return openSlotsFor(k).filter(s=>!s.taken && !s.past); }
+
+/* ================= CALENDAR (customer) ================= */
+function calMove(d){ calCursor.setMonth(calCursor.getMonth()+d); loadPublicMonth(calCursor); }
+function renderCal(){
+  document.getElementById("cal-month").textContent=AZ_MONTHS[calCursor.getMonth()]+" "+calCursor.getFullYear();
+  const grid=document.getElementById("cal-grid"); grid.innerHTML="";
+  AZ_DOW.forEach(d=>{ const e=document.createElement("div"); e.className="cal-dow"; e.textContent=d; grid.appendChild(e); });
+  const first=new Date(calCursor.getFullYear(),calCursor.getMonth(),1);
+  const lead=mondayIndex(first);
+  const days=new Date(calCursor.getFullYear(),calCursor.getMonth()+1,0).getDate();
+  const tK=todayKey();
+  for(let i=0;i<lead;i++){ const e=document.createElement("div"); e.className="cal-day empty"; grid.appendChild(e); }
+  for(let day=1;day<=days;day++){
+    const d=new Date(calCursor.getFullYear(),calCursor.getMonth(),day); const key=keyOf(d);
+    const btn=document.createElement("button"); btn.className="cal-day"; btn.textContent=day;
+    if(key===tK) btn.classList.add("today");
+    const isPast=key<tK;
+    const dayObj=availabilityMap[key];
+    const free = dayObj && !dayObj.closed ? (dayObj.slots||[]).filter(s=>!s.taken && !s.past) : [];
+    const closed = !dayObj || dayObj.closed || (dayObj.slots||[]).length===0;
+    if(isPast){ btn.classList.add("past"); btn.disabled=true; }
+    else if(closed){ btn.classList.add("closed"); btn.disabled=true; }
+    else if(free.length===0){ btn.classList.add("closed"); btn.disabled=true; btn.title="Yer yoxdur"; }
+    else { btn.classList.add("has-slots"); btn.onclick=()=>selectDate(key); }
+    if(sel.date===key) btn.classList.add("selected");
+    grid.appendChild(btn);
+  }
+  const cur=calCursor.getFullYear()*12+calCursor.getMonth(); const now=new Date(); const nowIdx=now.getFullYear()*12+now.getMonth();
+  document.getElementById("cal-prev").disabled=cur<=nowIdx;
+}
+function selectDate(key){ sel.date=key; sel.time=null; renderCal(); renderSlots(); renderSummary(); }
+
+function renderSlots(){
+  const cont=document.getElementById("slots-container"); const label=document.getElementById("slots-label");
+  if(!sel.date){ label.style.display="none"; cont.innerHTML='<div class="slots-empty">Başlamaq üçün təqvimdən bir gün seçin.</div>'; return; }
+  const d=parseKey(sel.date); label.style.display="block"; document.getElementById("slots-date").textContent=fmtLong(d);
+  const open=openSlotsFor(sel.date);
+  if(open.length===0){ cont.innerHTML='<div class="slots-empty">Bu gün üçün açıq saat yoxdur.</div>'; return; }
+  const grid=document.createElement("div"); grid.className="slots-grid";
+  open.forEach(s=>{ const b=document.createElement("button"); b.className="slot"; b.textContent=s.time;
+    if(s.taken){ b.classList.add("taken"); b.disabled=true; b.title="Dolub"; }
+    else { if(sel.time===s.time) b.classList.add("selected"); b.onclick=()=>{ sel.time=s.time; renderSlots(); renderSummary(); }; }
+    grid.appendChild(b); });
+  cont.innerHTML=""; cont.appendChild(grid);
+}
+
+function getSelService(){ return services.find(s=>s.id===sel.serviceId)||null; }
+function renderSummary(){
+  const el=document.getElementById("summary");
+  if(!sel.date&&!sel.time){ el.innerHTML='<div class="placeholder">Seçim etdikcə burada görünəcək.</div>'; validate(); return; }
+  const d=sel.date?parseKey(sel.date):null; const svc=getSelService();
+  el.innerHTML=`<div class="row"><span class="k">Xidmət</span><span class="v">${svc?escapeHtml(svc.name):"—"}</span></div><div class="row"><span class="k">Tarix</span><span class="v">${d?fmtDate(d):"—"}</span></div><div class="row"><span class="k">Saat</span><span class="v mono">${sel.time||"—"}</span></div><div class="row"><span class="k">Qiymət</span><span class="v">${svc?money(svc.price):"—"}</span></div>`;
+  validate();
+}
+
+function validate(){ const n=document.getElementById("c-name").value.trim(); const p=digitsOnly(document.getElementById("c-phone").value); document.getElementById("submit-btn").disabled=!(sel.date&&sel.time&&sel.serviceId&&n.length>=2&&p.length===7); }
+document.getElementById("c-name").addEventListener("input",validate);
+document.getElementById("c-phone").addEventListener("input",function(){ this.value=digitsOnly(this.value).slice(0,7); validate(); });
+
+async function submitBooking(){
+  const btn = document.getElementById("submit-btn");
+  const name=document.getElementById("c-name").value.trim();
+  const local=digitsOnly(document.getElementById("c-phone").value);
+  const prefix=document.getElementById("c-prefix").value;
+  if(!sel.date||!sel.time||!name||local.length<7||!sel.serviceId) return;
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Göndərilir...';
+  try {
+    const res = await api("/api/v1/reservations", { method: "POST", body: {
+      name, prefix, phone: local, serviceId: sel.serviceId, date: sel.date, time: sel.time
+    }});
+    lastCode = res.code;
+    const d = parseKey(res.date);
+    document.getElementById("confirm-text").textContent =
+      `${res.customerName}, ${res.serviceName} (${money(res.price)}) — ${fmtDate(d)} saat ${res.time} üçün yeriniz təsdiqləndi.`;
+    document.getElementById("confirm-code").textContent = res.code;
+    document.getElementById("booking-flow").hidden = true;
+    document.getElementById("confirm-panel").hidden = false;
+    toast("Rezervasiya yaradıldı — kod: "+res.code,"ok");
+    window.scrollTo({top:0,behavior:"smooth"});
+  } catch (e) {
+    toast(e.message,"err");
+  } finally {
+    btn.disabled=false; btn.textContent="Rezervasiyanı təsdiqlə"; validate();
+  }
+}
+
+function copyCode(){ if(!lastCode) return; try{ navigator.clipboard.writeText(lastCode); toast("Kod kopyalandı.","ok"); }catch(e){ toast("Kod: "+lastCode,"ok"); } }
+function resetBooking(){
+  sel = {date:null, time:null, serviceId: services[0] ? services[0].id : null};
+  document.getElementById("c-name").value = "";
+  document.getElementById("c-phone").value = "";
+  const cs = document.getElementById("c-service");
+  if (cs && sel.serviceId) cs.value = sel.serviceId;
+  document.getElementById("confirm-panel").hidden = true;
+  document.getElementById("booking-flow").hidden = false;
+  loadPublicMonth(calCursor);
+  renderSlots(); renderSummary();
+}
+
+/* ================= STATUS CHECK ================= */
+async function checkStatus(){
+  const code=document.getElementById("s-code").value.trim().toUpperCase();
+  const prefix=document.getElementById("s-prefix").value;
+  const local=digitsOnly(document.getElementById("s-phone").value);
+  const box=document.getElementById("status-result");
+  if(!code||local.length<7){ box.innerHTML=`<div class="closed-note" style="background:var(--warn-tint);color:var(--warn)">Kod və nömrəni tam daxil edin.</div>`; return; }
+  box.innerHTML=`<div style="text-align:center;padding:20px"><span class="spinner"></span></div>`;
+  try {
+    const r = await api("/api/v1/reservations/status", { method:"POST", body: { code, prefix, phone: local }});
+    renderStatusResult(r);
+  } catch (e) {
+    box.innerHTML=`<div class="closed-note">${escapeHtml(e.message)}</div>`;
+  }
+}
+function renderStatusResult(r){
+  const box=document.getElementById("status-result");
+  const d=parseKey(r.date);
+  let badge;
+  if(r.status==="CANCELLED") badge='<span class="st-badge cancel">✕ Ləğv edilib</span>';
+  else if(r.status==="COMPLETED") badge='<span class="st-badge done">✓ Tamamlanıb</span>';
+  else badge='<span class="st-badge ok">● Aktiv</span>';
+  box.innerHTML=`<div style="margin-bottom:6px">${badge}</div>
+    <div class="st-detail">
+      <div class="row"><span class="k">Ad</span><span class="v">${escapeHtml(r.customerName)}</span></div>
+      <div class="row"><span class="k">Xidmət</span><span class="v">${escapeHtml(r.serviceName||"—")}${r.price!=null?" · "+money(r.price):""}</span></div>
+      <div class="row"><span class="k">Tarix</span><span class="v">${fmtLong(d)}</span></div>
+      <div class="row"><span class="k">Saat</span><span class="v mono">${r.time}</span></div>
+      <div class="row"><span class="k">Kod</span><span class="v mono">${r.code}</span></div>
+    </div>
+    ${r.status==="ACTIVE"?`<button class="btn ghost" style="margin-top:14px" onclick="cancelByCustomer('${r.code}')">Rezervasiyanı ləğv et</button>`:""}`;
+}
+async function cancelByCustomer(code){
+  const prefix=document.getElementById("s-prefix").value;
+  const local=digitsOnly(document.getElementById("s-phone").value);
+  try {
+    const r = await api("/api/v1/reservations/cancel", { method:"POST", body: { code, prefix, phone: local }});
+    toast("Rezervasiya ləğv edildi.","ok");
+    renderStatusResult(r);
+    loadPublicMonth(calCursor);
+  } catch (e) { toast(e.message,"err"); }
+}
+
+/* ================= ADMIN ================= */
+async function adminLogin(){
+  const u=document.getElementById("a-user").value.trim();
+  const p=document.getElementById("a-pass").value;
+  try {
+    const r = await api("/api/v1/auth/login", { method:"POST", body: { username: u, password: p }});
+    setToken(r.token); setAdmin({ username: r.username, fullName: r.fullName, roles: r.roles });
+    document.getElementById("admin-gate").hidden=true;
+    document.getElementById("admin-dash").hidden=false;
+    document.getElementById("admin-name").textContent = r.fullName || r.username;
+    document.getElementById("a-pass").value="";
+    renderAdmin();
+  } catch (e) {
+    toast(e.message,"warn");
+  }
+}
+function adminLogout(){ setToken(null); setAdmin(null); document.getElementById("admin-dash").hidden=true; document.getElementById("admin-gate").hidden=false; }
+
+async function renderAdmin(){
+  if(!schedMon) setSchedMon(0);
+  await Promise.all([loadAdminServices(), loadAdminMonth(acalCursor), loadSchedule(), loadStats()]);
+  renderServices();
+  renderAcal();
+  renderAvailPanel();
+  renderSched();
+  renderStats();
+}
+
+/* --- admin services --- */
+async function loadAdminServices(){
+  try { adminServices = await api("/api/v1/admin/services"); } catch(e){ toast(e.message,"err"); adminServices=[]; }
+}
+function renderServices(){
+  const el=document.getElementById("svc-list");
+  if(adminServices.length===0){ el.innerHTML='<div class="svc-empty">Hələ xidmət yoxdur — aşağıdan əlavə edin.</div>'; return; }
+  el.innerHTML=adminServices.map(s=>`<div class="svc-item"><span class="sn">${escapeHtml(s.name)}${s.active?"":" <em style=\"color:var(--ink-faint);font-style:normal;font-size:11px\">(deaktiv)</em>"}</span><span class="sp">${money(s.price)} · ${s.durationMin}dq</span><button class="del" onclick="removeService(${s.id})" aria-label="Sil" title="Deaktiv et">✕</button></div>`).join("");
+}
+async function addService(){
+  const nameEl=document.getElementById("svc-name"); const priceEl=document.getElementById("svc-price"); const durEl=document.getElementById("svc-dur");
+  const name=nameEl.value.trim(); const price=parseFloat(priceEl.value); const dur=parseInt(durEl.value||"60",10);
+  if(name.length<2){ toast("Xidmət adını yazın.","warn"); return; }
+  if(isNaN(price)||price<0){ toast("Düzgün qiymət yazın.","warn"); return; }
+  try {
+    await api("/api/v1/admin/services", { method:"POST", body: { name, price, durationMin: dur, active: true }});
+    nameEl.value=""; priceEl.value=""; durEl.value="";
+    await loadAdminServices(); await loadPublicServices();
+    renderServices();
+    toast("Xidmət əlavə edildi.","ok");
+  } catch(e){ toast(e.message,"err"); }
+}
+async function removeService(id){
+  try {
+    await api("/api/v1/admin/services/"+id, { method:"DELETE" });
+    await loadAdminServices(); await loadPublicServices();
+    renderServices();
+    toast("Xidmət deaktiv edildi.","ok");
+  } catch(e){ toast(e.message,"err"); }
+}
+
+/* --- admin availability --- */
+async function loadAdminMonth(cursor){
+  const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  const last  = new Date(cursor.getFullYear(), cursor.getMonth()+1, 0);
+  try {
+    const list = await api(`/api/v1/admin/availability?from=${keyOf(first)}&to=${keyOf(last)}`);
+    adminAvailabilityMap = {};
+    list.forEach(d => { adminAvailabilityMap[d.date] = d; });
+  } catch(e){ toast(e.message,"err"); adminAvailabilityMap={}; }
+}
+
+function acalMove(d){ acalCursor.setMonth(acalCursor.getMonth()+d); loadAdminMonth(acalCursor).then(()=>{ renderAcal(); renderAvailPanel(); }); }
+function renderAcal(){
+  document.getElementById("acal-month").textContent=AZ_MONTHS[acalCursor.getMonth()]+" "+acalCursor.getFullYear();
+  const grid=document.getElementById("acal-grid"); grid.innerHTML="";
+  AZ_DOW.forEach(d=>{ const e=document.createElement("div"); e.className="cal-dow"; e.textContent=d; grid.appendChild(e); });
+  const first=new Date(acalCursor.getFullYear(),acalCursor.getMonth(),1); const lead=mondayIndex(first);
+  const days=new Date(acalCursor.getFullYear(),acalCursor.getMonth()+1,0).getDate(); const tK=todayKey();
+  for(let i=0;i<lead;i++){ const e=document.createElement("div"); e.className="cal-day empty"; grid.appendChild(e); }
+  for(let day=1;day<=days;day++){
+    const d=new Date(acalCursor.getFullYear(),acalCursor.getMonth(),day); const key=keyOf(d);
+    const btn=document.createElement("button"); btn.className="cal-day"; btn.textContent=day;
+    if(key===tK) btn.classList.add("today");
+    const dayObj = adminAvailabilityMap[key];
+    if(dayObj && !dayObj.closed && (dayObj.slots||[]).length>0) btn.classList.add("has-slots");
+    if(dayObj && dayObj.closed) btn.classList.add("closed");
+    if(adminSelDate===key) btn.classList.add("selected");
+    btn.onclick=()=>{ adminSelDate=key; renderAcal(); renderAvailPanel(); };
+    grid.appendChild(btn);
+  }
+}
+
+function renderAvailPanel(){
+  const p=document.getElementById("avail-slots-panel");
+  if(!adminSelDate){ p.innerHTML='<div class="slots-empty">Saat əlavə etmək üçün təqvimdən gün seçin.</div>'; return; }
+  const d=parseKey(adminSelDate); const key=adminSelDate;
+  const dayObj = adminAvailabilityMap[key] || {closed:false, slots:[]};
+  const slots = (dayObj.slots||[]).map(s=>s.time).sort();
+  const booked = new Set((dayObj.slots||[]).filter(s=>s.taken).map(s=>s.time));
+  let html=`<div class="day-title">${fmtLong(d)}</div><div class="day-sub">${dayObj.closed?"Bağlı gün":slots.length+" saat açıqdır"}</div>`;
+  if(dayObj.closed){
+    html+=`<div class="closed-note">Bu gün bağlıdır — istifadəçilər rezerv edə bilməz.</div>
+      <div class="day-actions"><button class="btn sm" onclick="openDay()">Günü aç</button></div>`;
+  } else {
+    html+=`<div class="chip-grid">`;
+    if(slots.length===0){ html+=`<span style="color:var(--ink-faint);font-size:14px">Hələ saat yoxdur — aşağıdan əlavə edin.</span>`; }
+    slots.forEach(s=>{ const isB=booked.has(s); html+=`<button class="chip${isB?" booked":""}" aria-pressed="true" title="${isB?"Rezerv var — silmək olmaz":"Silmək üçün klik"}" onclick="removeSlot('${s}')">${s}${isB?"":" ✕"}</button>`; });
+    html+=`</div>
+      <div class="add-slot-row">
+        <div class="field"><label for="new-slot">Saat əlavə et</label><input id="new-slot" type="time" step="900" value="12:00"></div>
+        <button class="btn sm" onclick="addSlot()">Əlavə et</button>
+      </div>
+      <div class="add-slot-row" style="margin-top:6px">
+        <span class="hint">Tez seç:</span>
+        ${["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"].filter(s=>!slots.includes(s)).map(s=>`<button class="chip" style="padding:5px 10px" onclick="quickAdd('${s}')">+ ${s}</button>`).join("")}
+      </div>
+      <div class="day-actions" style="margin-top:14px"><button class="btn ghost sm" onclick="closeDay()">Günü bağla</button></div>`;
+  }
+  p.innerHTML=html;
+}
+
+async function addSlot(){ const v=document.getElementById("new-slot").value; if(!v) return; quickAdd(v); }
+async function quickAdd(v){
+  try {
+    await api(`/api/v1/admin/availability/days/${adminSelDate}/slots`, { method:"POST", body: { time: v.substring(0,5) }});
+    await loadAdminMonth(acalCursor); await loadPublicMonth(calCursor); await loadSchedule(); await loadStats();
+    renderAcal(); renderAvailPanel(); renderSched(); renderStats();
+  } catch(e){ toast(e.message,"warn"); }
+}
+async function removeSlot(s){
+  try {
+    await api(`/api/v1/admin/availability/days/${adminSelDate}/slots/${s}`, { method:"DELETE" });
+    await loadAdminMonth(acalCursor); await loadPublicMonth(calCursor); await loadSchedule(); await loadStats();
+    renderAcal(); renderAvailPanel(); renderSched(); renderStats();
+  } catch(e){ toast(e.message,"warn"); }
+}
+async function closeDay(){
+  try {
+    await api(`/api/v1/admin/availability/days`, { method:"POST", body: { date: adminSelDate, closed: true }});
+    await loadAdminMonth(acalCursor); await loadPublicMonth(calCursor); await loadSchedule(); await loadStats();
+    renderAcal(); renderAvailPanel(); renderSched(); renderStats();
+  } catch(e){ toast(e.message,"warn"); }
+}
+async function openDay(){
+  try {
+    await api(`/api/v1/admin/availability/days`, { method:"POST", body: { date: adminSelDate, closed: false }});
+    await loadAdminMonth(acalCursor); await loadPublicMonth(calCursor); await loadSchedule(); await loadStats();
+    renderAcal(); renderAvailPanel(); renderSched(); renderStats();
+  } catch(e){ toast(e.message,"warn"); }
+}
+
+/* --- schedule --- */
+function setSchedMon(offset){ const base=new Date(); base.setHours(0,0,0,0); const mon=new Date(base); mon.setDate(base.getDate()-mondayIndex(base)+offset*7); schedMon=mon; }
+async function schedWeek(dir){
+  if(dir===0) setSchedMon(0);
+  else schedMon.setDate(schedMon.getDate()+dir*7);
+  await Promise.all([loadSchedule(), loadStats()]);
+  renderSched(); renderStats();
+}
+
+async function loadSchedule(){
+  if(!schedMon) setSchedMon(0);
+  const sunday = new Date(schedMon); sunday.setDate(schedMon.getDate()+6);
+  const from = keyOf(schedMon), to = keyOf(sunday);
+  try {
+    const [avail, res] = await Promise.all([
+      api(`/api/v1/admin/availability?from=${from}&to=${to}`),
+      api(`/api/v1/admin/reservations?from=${from}&to=${to}`),
+    ]);
+    // merge into a lookup: date -> { closed, slots:[time], reservations: {time -> res} }
+    window.__schedData = { avail: avail, res: res };
+  } catch(e){ toast(e.message,"err"); window.__schedData = { avail: [], res: [] }; }
+}
+
+function renderSched(){
+  const table=document.getElementById("sched-table");
+  const days=[]; for(let i=0;i<7;i++){ const d=new Date(schedMon); d.setDate(schedMon.getDate()+i); days.push(d); }
+  const tK=todayKey();
+  const data = window.__schedData || {avail:[], res:[]};
+  const availByDate = {}; data.avail.forEach(d=>availByDate[d.date]=d);
+  const resByCell = {}; data.res.filter(r=>r.status==="ACTIVE").forEach(r=>{ resByCell[r.date+" "+r.time]=r; });
+
+  // union of all slots across the week
+  const slotSet=new Set();
+  days.forEach(d=>{ const dv=availByDate[keyOf(d)]; if(dv && !dv.closed) (dv.slots||[]).forEach(s=>slotSet.add(s.time)); });
+  const slots=[...slotSet].sort();
+  const monEnd=new Date(days[6]);
+  let head=`<thead><tr><th class="time-col">${fmtDate(schedMon)}–${fmtDate(monEnd)}</th>`;
+  days.forEach(d=>{ const isT=keyOf(d)===tK; head+=`<th class="${isT?"today":""}">${AZ_DOW[mondayIndex(d)]}<br><span style="font-weight:400;color:var(--ink-faint)">${d.getDate()}</span></th>`; });
+  head+=`</tr></thead>`;
+  let body="<tbody>";
+  if(slots.length===0){ body+=`<tr><td colspan="8" style="padding:24px;color:var(--ink-faint)">Bu həftə üçün açıq saat yoxdur.</td></tr>`; }
+  slots.forEach(s=>{
+    body+=`<tr><th class="time-col">${s}</th>`;
+    days.forEach(d=>{
+      const key=keyOf(d); const dv=availByDate[key];
+      const open = dv && !dv.closed && (dv.slots||[]).some(x=>x.time===s);
+      const r=resByCell[key+" "+s];
+      if(!open){ body+=`<td><div class="cell closed"></div></td>`; }
+      else if(r){ body+=`<td><div class="cell booked" onclick="resModal(${r.id})"><span class="nm">${escapeHtml(r.customerName)}</span><span class="ph">${escapeHtml(r.phone)}</span></div></td>`; }
+      else { body+=`<td><div class="cell free"><span class="dash">—</span></div></td>`; }
+    });
+    body+=`</tr>`;
+  });
+  body+="</tbody>";
+  table.innerHTML=head+body;
+}
+
+async function loadStats(){
+  try { const s = await api("/api/v1/admin/stats"); window.__stats = s; } catch(e){ window.__stats = null; }
+}
+function renderStats(){
+  const s = window.__stats;
+  const rows = s ? [
+    {n:s.activeUpcoming, l:"Aktiv rezerv"},
+    {n:s.todayActive,    l:"Bu gün"},
+    {n:s.weekFreeSlots,  l:"Boş yer (həftə)"}
+  ] : [{n:"—",l:"Aktiv rezerv"},{n:"—",l:"Bu gün"},{n:"—",l:"Boş yer (həftə)"}];
+  document.getElementById("admin-stats").innerHTML = rows.map(r=>`<div class="stat"><div class="n">${r.n}</div><div class="l">${r.l}</div></div>`).join("");
+}
+
+/* --- admin reservation modal --- */
+function resModal(id){
+  const r = (window.__schedData && window.__schedData.res || []).find(x=>x.id===id); if(!r) return;
+  const d=parseKey(r.date);
+  document.getElementById("modal-root").innerHTML=`
+    <div class="modal-back" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="panel-head"><h4>Rezerv detalı</h4></div>
+        <div class="m-body">
+          <div class="st-detail" style="margin-top:0">
+            <div class="row"><span class="k">Ad</span><span class="v">${escapeHtml(r.customerName)}</span></div>
+            <div class="row"><span class="k">Nömrə</span><span class="v mono">${escapeHtml(r.phone)}</span></div>
+            <div class="row"><span class="k">Xidmət</span><span class="v">${escapeHtml(r.serviceName||"—")}${r.price!=null?" · "+money(r.price):""}</span></div>
+            <div class="row"><span class="k">Tarix</span><span class="v">${fmtLong(d)}</span></div>
+            <div class="row"><span class="k">Saat</span><span class="v mono">${r.time}</span></div>
+            <div class="row"><span class="k">Kod</span><span class="v mono">${r.code}</span></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button class="btn ghost" onclick="closeModal()">Bağla</button>
+            <button class="btn" style="background:var(--danger)" onclick="adminCancel(${r.id})">Ləğv et</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+function closeModal(){ document.getElementById("modal-root").innerHTML=""; }
+async function adminCancel(id){
+  try {
+    await api(`/api/v1/admin/reservations/${id}/cancel`, { method:"POST" });
+    closeModal();
+    await Promise.all([loadSchedule(), loadAdminMonth(acalCursor), loadPublicMonth(calCursor), loadStats()]);
+    renderSched(); renderAcal(); renderAvailPanel(); renderStats();
+    toast("Rezerv ləğv edildi.","ok");
+  } catch(e){ toast(e.message,"err"); }
+}
+
+/* ---------- init ---------- */
+function fillPrefixes(){
+  ["c-prefix","s-prefix"].forEach(id=>{ const s=document.getElementById(id); if(s) s.innerHTML=AZ_PREFIXES.map(p=>`<option value="${p}">${p}</option>`).join(""); });
+}
+fillPrefixes();
+const sPhoneEl=document.getElementById("s-phone");
+if(sPhoneEl) sPhoneEl.addEventListener("input",function(){ this.value=digitsOnly(this.value).slice(0,7); });
+document.getElementById("s-code").addEventListener("input",function(){ this.value=this.value.toUpperCase(); });
+document.getElementById("c-service").addEventListener("change",function(){ sel.serviceId = parseInt(this.value,10); renderSummary(); });
+
+(async function boot(){
+  await loadPublicServices();
+  await loadPublicMonth(calCursor);
+  renderSlots(); renderSummary();
+
+  const a = getAdmin();
+  if (a) { /* still logged in */ }
+})();
+</script>
+
+</body>
+</html>
