@@ -14,14 +14,19 @@ CREATE TABLE IF NOT EXISTS availability_intervals (
 );
 CREATE INDEX IF NOT EXISTS ix_intervals_day ON availability_intervals(day_id);
 
--- Backfill: turn every legacy 20-min slot into a 60-min interval so the day
--- keeps roughly the same open window. Deduplicated via unique (day_id,start).
-INSERT INTO availability_intervals (day_id, start_time, end_time)
-SELECT day_id, slot_time, (slot_time + interval '60 minutes')::time
-FROM availability_slots
-ON CONFLICT (day_id, start_time) DO NOTHING;
-
-DROP TABLE IF EXISTS availability_slots;
+-- Backfill legacy slots (if the table still exists in this environment) as
+-- 60-min intervals, deduplicated via the unique index.
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables
+               WHERE table_schema = current_schema() AND table_name = 'availability_slots') THEN
+        INSERT INTO availability_intervals (day_id, start_time, end_time)
+        SELECT day_id, slot_time, (slot_time + interval '60 minutes')::time
+        FROM availability_slots
+        ON CONFLICT (day_id, start_time) DO NOTHING;
+        DROP TABLE availability_slots;
+    END IF;
+END$$;
 
 -- Snapshot each reservation's duration so admin-side changes to a service's
 -- duration don't rewrite past bookings.
@@ -34,7 +39,18 @@ FROM services s
 WHERE s.id = r.service_id
   AND r.duration_min = 60;
 
--- Force durations to be multiples of 20 going forward (20, 40, 60, 80, ...).
+-- Round any existing durations up to the nearest multiple of 20 BEFORE
+-- adding the check constraint, otherwise legacy 45/90/etc. rows break it.
+UPDATE services
+   SET duration_min = ((duration_min + 19) / 20) * 20
+ WHERE duration_min % 20 <> 0;
+
+UPDATE reservations
+   SET duration_min = ((duration_min + 19) / 20) * 20
+ WHERE duration_min % 20 <> 0;
+
+ALTER TABLE services
+    DROP CONSTRAINT IF EXISTS chk_services_duration_step;
 ALTER TABLE services
     ADD CONSTRAINT chk_services_duration_step
     CHECK (duration_min > 0 AND duration_min % 20 = 0);

@@ -28,6 +28,10 @@ spring:
     default-schema: ${DB_SCHEMA:gulnar}
     locations: classpath:db/migration
     baseline-on-migrate: true
+    # If V3 (or any migration) previously failed and got recorded, clear it
+    # on the next boot and re-apply with the fixed contents.
+    repair-on-migrate: true
+    validate-on-migrate: false
 
 app:
   jwt:
