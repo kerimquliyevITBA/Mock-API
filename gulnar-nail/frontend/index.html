@@ -580,7 +580,7 @@ function fillServiceSelect() {
     cs.innerHTML='<option value="">Xidmət yoxdur</option>';
     sel.serviceId=null;
   } else {
-    cs.innerHTML = services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} — ${money(s.price)}</option>`).join("");
+    cs.innerHTML = services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} — ${money(s.price)}${s.durationMin?" · "+s.durationMin+" dq":""}</option>`).join("");
     if (!sel.serviceId || !services.some(s=>s.id===sel.serviceId)) sel.serviceId = services[0].id;
     cs.value = sel.serviceId;
   }
@@ -655,7 +655,7 @@ function renderSummary(){
   const el=document.getElementById("summary");
   if(!sel.date&&!sel.time){ el.innerHTML='<div class="placeholder">Seçim etdikcə burada görünəcək.</div>'; validate(); return; }
   const d=sel.date?parseKey(sel.date):null; const svc=getSelService();
-  el.innerHTML=`<div class="row"><span class="k">Xidmət</span><span class="v">${svc?escapeHtml(svc.name):"—"}</span></div><div class="row"><span class="k">Tarix</span><span class="v">${d?fmtDate(d):"—"}</span></div><div class="row"><span class="k">Saat</span><span class="v mono">${sel.time||"—"}</span></div><div class="row"><span class="k">Qiymət</span><span class="v">${svc?money(svc.price):"—"}</span></div>`;
+  el.innerHTML=`<div class="row"><span class="k">Xidmət</span><span class="v">${svc?escapeHtml(svc.name):"—"}</span></div><div class="row"><span class="k">Tarix</span><span class="v">${d?fmtDate(d):"—"}</span></div><div class="row"><span class="k">Saat</span><span class="v mono">${sel.time||"—"}</span></div><div class="row"><span class="k">Müddət</span><span class="v">${svc&&svc.durationMin?svc.durationMin+" dəq":"—"}</span></div><div class="row"><span class="k">Qiymət</span><span class="v">${svc?money(svc.price):"—"}</span></div>`;
   validate();
 }
 

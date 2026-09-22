@@ -29,9 +29,14 @@ public class ReservationService {
         this.availability = availability;
     }
 
+    private static String buildPhone(String prefix, String local) {
+        String p = prefix.startsWith("0") ? prefix.substring(1) : prefix;
+        return "+994 " + p + " " + local;
+    }
+
     @Transactional
     public Reservation create(ReservationDto.CreateReq req) {
-        String phone = "+994 " + req.prefix() + " " + req.phone();
+        String phone = buildPhone(req.prefix(), req.phone());
 
         ServiceEntity svc = services.findById(req.serviceId())
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Xidmət tapılmadı"));
@@ -71,7 +76,7 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public Reservation lookup(String code, String prefix, String local) {
-        String phone = "+994 " + prefix + " " + local;
+        String phone = buildPhone(prefix, local);
         return repo.findByCodeAndPhone(code.trim().toUpperCase(), phone)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Bu kod və nömrə ilə rezerv tapılmadı"));
     }
