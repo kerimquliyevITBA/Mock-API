@@ -388,7 +388,10 @@
     <div id="admin-dash" hidden>
       <div class="row-between" style="margin-bottom:6px">
         <div><div class="section-label">İdarə paneli</div><h1 style="font-size:26px">Xoş gəldiniz, <span id="admin-name">Admin</span></h1></div>
-        <button class="btn ghost sm" onclick="adminLogout()">Çıxış</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost sm" onclick="openProfileModal()">Profil</button>
+          <button class="btn ghost sm" onclick="adminLogout()">Çıxış</button>
+        </div>
       </div>
       <p class="admin-sub">İstənilən günü açıb saatları əlavə edin; rezervləri cədvəldə izləyin.</p>
 
@@ -992,6 +995,53 @@ function resModal(id){
     </div>`;
 }
 function closeModal(){ document.getElementById("modal-root").innerHTML=""; }
+
+/* --- profile / change password --- */
+function openProfileModal(){
+  const a = getAdmin() || {};
+  document.getElementById("modal-root").innerHTML = `
+    <div class="modal-back" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="panel-head"><h4>Profil</h4></div>
+        <div class="m-body">
+          <div class="field"><label for="pf-user">İstifadəçi adı</label><input id="pf-user" type="text" value="${escapeHtml(a.username||'')}" autocapitalize="off" autocomplete="username"><span class="hint">Hərf, rəqəm, . _ - simvolları</span></div>
+          <div class="field"><label for="pf-name">Ad, soyad</label><input id="pf-name" type="text" value="${escapeHtml(a.fullName||'')}"></div>
+          <button class="btn" onclick="saveProfileName()">Yadda saxla</button>
+          <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
+          <div class="field"><label for="pf-cur">Cari şifrə</label><input id="pf-cur" type="password" autocomplete="current-password"></div>
+          <div class="field"><label for="pf-new">Yeni şifrə</label><input id="pf-new" type="password" autocomplete="new-password"><span class="hint">Ən az 6 simvol</span></div>
+          <div class="field"><label for="pf-new2">Yeni şifrə (təkrar)</label><input id="pf-new2" type="password" autocomplete="new-password"></div>
+          <button class="btn" onclick="saveProfilePassword()">Şifrəni dəyiş</button>
+          <button class="btn ghost" style="margin-top:8px" onclick="closeModal()">Bağla</button>
+        </div>
+      </div>
+    </div>`;
+}
+async function saveProfileName(){
+  const name = document.getElementById("pf-name").value.trim();
+  const username = document.getElementById("pf-user").value.trim();
+  if(name.length<2){ toast("Ad ən az 2 hərf olmalıdır","warn"); return; }
+  if(username.length<3){ toast("İstifadəçi adı ən az 3 simvol olmalıdır","warn"); return; }
+  try {
+    const r = await api("/api/v1/auth/me", { method:"PUT", body: { fullName: name, username: username }});
+    const a = getAdmin() || {}; a.fullName = r.fullName; a.username = r.username; setAdmin(a);
+    if (r.token) setToken(r.token);
+    document.getElementById("admin-name").textContent = r.fullName || r.username || "Admin";
+    toast(r.usernameChanged ? "Profil yeniləndi, istifadəçi adı dəyişdi" : "Profil yeniləndi","ok");
+  } catch(e){ toast(e.message,"err"); }
+}
+async function saveProfilePassword(){
+  const cur = document.getElementById("pf-cur").value;
+  const n1 = document.getElementById("pf-new").value;
+  const n2 = document.getElementById("pf-new2").value;
+  if(n1.length<6){ toast("Yeni şifrə ən az 6 simvol olmalıdır","warn"); return; }
+  if(n1!==n2){ toast("Şifrələr eyni deyil","warn"); return; }
+  try {
+    await api("/api/v1/auth/change-password", { method:"POST", body: { currentPassword: cur, newPassword: n1 }});
+    toast("Şifrə dəyişdi. Yenidən daxil olun.","ok");
+    setTimeout(()=>{ adminLogout(); closeModal(); }, 900);
+  } catch(e){ toast(e.message,"err"); }
+}
 async function adminCancel(id){
   try {
     await api(`/api/v1/admin/reservations/${id}/cancel`, { method:"POST" });
