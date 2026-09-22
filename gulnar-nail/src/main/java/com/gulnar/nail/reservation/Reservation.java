@@ -22,6 +22,7 @@ public class Reservation {
 
     @Column(name = "reservation_date", nullable = false) private LocalDate reservationDate;
     @Column(name = "reservation_time", nullable = false) private LocalTime reservationTime;
+    @Column(name = "duration_min",     nullable = false) private int durationMin = 60;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20) private ReservationStatus status = ReservationStatus.ACTIVE;
@@ -50,6 +51,8 @@ public class Reservation {
     public void setReservationDate(LocalDate reservationDate) { this.reservationDate = reservationDate; }
     public LocalTime getReservationTime() { return reservationTime; }
     public void setReservationTime(LocalTime reservationTime) { this.reservationTime = reservationTime; }
+    public int getDurationMin() { return durationMin; }
+    public void setDurationMin(int durationMin) { this.durationMin = durationMin; }
     public ReservationStatus getStatus() { return status; }
     public void setStatus(ReservationStatus status) { this.status = status; }
     public OffsetDateTime getCreatedAt() { return createdAt; }

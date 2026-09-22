@@ -35,6 +35,7 @@ public class ReservationDto {
             BigDecimal price,
             LocalDate date,
             @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm") LocalTime time,
+            int durationMin,
             String status,
             OffsetDateTime createdAt,
             OffsetDateTime cancelledAt
@@ -42,7 +43,7 @@ public class ReservationDto {
         public static ReservationView of(Reservation r) {
             return new ReservationView(r.getId(), r.getCode(), r.getCustomerName(), r.getPhone(),
                     r.getServiceId(), r.getServiceName(), r.getPriceSnapshot(),
-                    r.getReservationDate(), r.getReservationTime(),
+                    r.getReservationDate(), r.getReservationTime(), r.getDurationMin(),
                     r.getStatus().name(), r.getCreatedAt(), r.getCancelledAt());
         }
     }

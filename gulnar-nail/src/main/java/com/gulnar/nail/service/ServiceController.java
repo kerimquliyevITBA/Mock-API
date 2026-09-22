@@ -59,7 +59,7 @@ public class ServiceController {
     private static void apply(ServiceEntity e, ServiceDto.UpsertReq r) {
         e.setName(r.name().trim());
         e.setPrice(r.price());
-        e.setDurationMin(r.durationMin() == null ? 60 : r.durationMin());
+        e.setDurationMin(r.durationMin());
         e.setActive(r.active() == null ? true : r.active());
     }
 }

@@ -17,48 +17,87 @@ import static org.springframework.http.HttpStatus.*;
 @Service
 public class AvailabilityService {
 
+    public static final int STEP_MIN = 20;
+
     private final AvailabilityDayRepository days;
-    private final AvailabilitySlotRepository slots;
+    private final AvailabilityIntervalRepository intervals;
     private final ReservationRepository reservations;
 
-    public AvailabilityService(AvailabilityDayRepository days, AvailabilitySlotRepository slots,
+    public AvailabilityService(AvailabilityDayRepository days,
+                               AvailabilityIntervalRepository intervals,
                                ReservationRepository reservations) {
         this.days = days;
-        this.slots = slots;
+        this.intervals = intervals;
         this.reservations = reservations;
     }
 
+    /**
+     * Returns days in range with their working intervals and generated slot
+     * start times. When durationMin is null, defaults to STEP_MIN so the
+     * caller sees the raw grid; a real booking flow should pass the selected
+     * service's durationMin so the slots reflect what actually fits.
+     */
     @Transactional(readOnly = true)
-    public List<AvailabilityDto.DayView> range(LocalDate from, LocalDate to, boolean adminView) {
+    public List<AvailabilityDto.DayView> range(LocalDate from, LocalDate to, boolean adminView, Integer durationMin) {
         if (from == null || to == null || to.isBefore(from))
             throw new ResponseStatusException(BAD_REQUEST, "from/to tarixləri düzgün deyil");
         if (from.until(to).getDays() > 120)
             throw new ResponseStatusException(BAD_REQUEST, "Interval max 120 gündür");
 
+        int duration = durationMin == null || durationMin <= 0 ? STEP_MIN : durationMin;
+        if (duration % STEP_MIN != 0)
+            throw new ResponseStatusException(BAD_REQUEST, "Xidmət müddəti " + STEP_MIN + " dəqiqənin misli olmalıdır");
+
         List<AvailabilityDay> ds = days.findByDateBetweenOrderByDateAsc(from, to);
         List<Reservation> res = reservations.findByReservationDateBetweenAndStatus(from, to, ReservationStatus.ACTIVE);
-
-        Map<LocalDate, Set<LocalTime>> taken = res.stream().collect(Collectors.groupingBy(
-                Reservation::getReservationDate,
-                Collectors.mapping(Reservation::getReservationTime, Collectors.toSet())));
+        Map<LocalDate, List<Reservation>> resByDate = res.stream()
+                .collect(Collectors.groupingBy(Reservation::getReservationDate));
 
         LocalDate today = LocalDate.now();
         LocalTime nowTime = LocalTime.now();
 
         List<AvailabilityDto.DayView> out = new ArrayList<>();
         for (AvailabilityDay d : ds) {
-            List<LocalTime> open = d.getSlots().stream().map(AvailabilitySlot::getSlotTime).sorted().toList();
-            Set<LocalTime> tk = taken.getOrDefault(d.getDate(), Set.of());
-            List<AvailabilityDto.SlotView> viewSlots = new ArrayList<>();
-            for (LocalTime t : open) {
-                boolean past = d.getDate().isBefore(today) || (d.getDate().equals(today) && t.isBefore(nowTime));
-                boolean tkn = tk.contains(t);
-                if (adminView) viewSlots.add(new AvailabilityDto.SlotView(t, tkn, past));
-                else if (!past) viewSlots.add(new AvailabilityDto.SlotView(t, tkn, false));
+            List<AvailabilityInterval> is = new ArrayList<>(d.getIntervals());
+            is.sort(Comparator.comparing(AvailabilityInterval::getStartTime));
+            List<AvailabilityDto.IntervalView> intervalViews = is.stream()
+                    .map(i -> new AvailabilityDto.IntervalView(i.getId(), i.getStartTime(), i.getEndTime()))
+                    .toList();
+
+            List<Reservation> dayRes = resByDate.getOrDefault(d.getDate(), List.of());
+
+            List<AvailabilityDto.SlotView> slots = new ArrayList<>();
+            if (!d.isClosed()) {
+                for (AvailabilityInterval iv : is) {
+                    LocalTime t = iv.getStartTime();
+                    while (!t.plusMinutes(duration).isAfter(iv.getEndTime())) {
+                        boolean past = d.getDate().isBefore(today)
+                                || (d.getDate().equals(today) && t.isBefore(nowTime));
+                        boolean taken = overlapsAny(dayRes, t, duration);
+                        if (adminView || !past) {
+                            slots.add(new AvailabilityDto.SlotView(t, taken, past));
+                        }
+                        t = t.plusMinutes(STEP_MIN);
+                    }
+                }
             }
-            out.add(new AvailabilityDto.DayView(d.getDate(), d.isClosed(), d.getNote(), viewSlots));
+
+            out.add(new AvailabilityDto.DayView(
+                    d.getDate(), d.isClosed(), d.getNote(),
+                    intervalViews, slots
+            ));
         }
         return out;
+    }
+
+    private static boolean overlapsAny(List<Reservation> dayRes, LocalTime start, int durationMin) {
+        LocalTime end = start.plusMinutes(durationMin);
+        for (Reservation r : dayRes) {
+            LocalTime rStart = r.getReservationTime();
+            LocalTime rEnd = rStart.plusMinutes(r.getDurationMin());
+            if (start.isBefore(rEnd) && rStart.isBefore(end)) return true;
+        }
+        return false;
     }
 
     @Transactional
@@ -86,39 +125,68 @@ public class AvailabilityService {
     }
 
     @Transactional
-    public AvailabilitySlot addSlot(LocalDate date, LocalTime time) {
-        if (date == null || time == null) throw new ResponseStatusException(BAD_REQUEST, "Tarix və saat tələb olunur");
-        if (date.isBefore(LocalDate.now())) throw new ResponseStatusException(BAD_REQUEST, "Keçmiş tarixə saat əlavə edilə bilməz");
+    public AvailabilityInterval addInterval(LocalDate date, LocalTime start, LocalTime end) {
+        if (date == null || start == null || end == null)
+            throw new ResponseStatusException(BAD_REQUEST, "Tarix və aralıq tələb olunur");
+        if (!end.isAfter(start))
+            throw new ResponseStatusException(BAD_REQUEST, "Bitiş saatı başlanğıcdan sonra olmalıdır");
+        if (start.getMinute() % STEP_MIN != 0 || end.getMinute() % STEP_MIN != 0)
+            throw new ResponseStatusException(BAD_REQUEST, "Saatlar " + STEP_MIN + " dəqiqənin misli olmalıdır");
+        if (((end.toSecondOfDay() - start.toSecondOfDay()) / 60) < STEP_MIN)
+            throw new ResponseStatusException(BAD_REQUEST, "Aralıq ən az " + STEP_MIN + " dəqiqə olmalıdır");
+        if (date.isBefore(LocalDate.now()))
+            throw new ResponseStatusException(BAD_REQUEST, "Keçmiş tarixə aralıq əlavə edilə bilməz");
+
         AvailabilityDay d = days.findByDate(date).orElseGet(() -> {
             AvailabilityDay nd = new AvailabilityDay();
             nd.setDate(date);
             return days.save(nd);
         });
-        if (d.isClosed()) throw new ResponseStatusException(CONFLICT, "Bağlı günə saat əlavə edilə bilməz");
-        LocalTime rounded = LocalTime.of(time.getHour(), time.getMinute());
-        if (slots.findByDayAndSlotTime(d, rounded).isPresent())
-            throw new ResponseStatusException(CONFLICT, "Bu saat artıq var");
-        AvailabilitySlot s = new AvailabilitySlot();
-        s.setDay(d);
-        s.setSlotTime(rounded);
-        return slots.save(s);
+        if (d.isClosed())
+            throw new ResponseStatusException(CONFLICT, "Bağlı günə aralıq əlavə edilə bilməz");
+
+        List<AvailabilityInterval> existing = intervals.findByDayOrderByStartTimeAsc(d);
+        for (AvailabilityInterval iv : existing) {
+            if (start.isBefore(iv.getEndTime()) && iv.getStartTime().isBefore(end))
+                throw new ResponseStatusException(CONFLICT, "Bu aralıq mövcud olanla üst-üstə düşür");
+        }
+
+        AvailabilityInterval iv = new AvailabilityInterval();
+        iv.setDay(d);
+        iv.setStartTime(start);
+        iv.setEndTime(end);
+        return intervals.save(iv);
     }
 
     @Transactional
-    public void removeSlot(LocalDate date, LocalTime time) {
+    public void removeInterval(LocalDate date, LocalTime start) {
         AvailabilityDay d = days.findByDate(date).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Gün tapılmadı"));
-        AvailabilitySlot s = slots.findByDayAndSlotTime(d, time).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Saat tapılmadı"));
-        if (reservations.existsByReservationDateAndReservationTimeAndStatus(date, time, ReservationStatus.ACTIVE))
-            throw new ResponseStatusException(CONFLICT, "Bu saata aktiv rezerv var — əvvəlcə ləğv edin");
-        slots.delete(s);
+        AvailabilityInterval iv = intervals.findByDayAndStartTime(d, start).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Aralıq tapılmadı"));
+        // Refuse deletion if any active reservation falls inside this interval
+        boolean covered = reservations.findByReservationDateAndStatus(date, ReservationStatus.ACTIVE).stream()
+                .anyMatch(r -> !r.getReservationTime().isBefore(iv.getStartTime())
+                        && !r.getReservationTime().plusMinutes(r.getDurationMin()).isAfter(iv.getEndTime()));
+        if (covered)
+            throw new ResponseStatusException(CONFLICT, "Bu aralıqda aktiv rezerv var — əvvəlcə ləğv edin");
+        intervals.delete(iv);
     }
 
+    /**
+     * Backend booking check: is [start, start+duration) fully contained in
+     * some working interval AND not overlapping any active reservation?
+     */
     @Transactional(readOnly = true)
-    public boolean isSlotOpen(LocalDate date, LocalTime time) {
-        return days.findByDate(date)
-                .filter(d -> !d.isClosed())
-                .flatMap(d -> slots.findByDayAndSlotTime(d, time))
-                .isPresent();
+    public boolean canBook(LocalDate date, LocalTime start, int durationMin) {
+        if (durationMin <= 0 || durationMin % STEP_MIN != 0) return false;
+        if (start.getMinute() % STEP_MIN != 0) return false;
+        AvailabilityDay d = days.findByDate(date).orElse(null);
+        if (d == null || d.isClosed()) return false;
+        LocalTime end = start.plusMinutes(durationMin);
+        boolean fits = intervals.findByDayOrderByStartTimeAsc(d).stream()
+                .anyMatch(iv -> !start.isBefore(iv.getStartTime()) && !end.isAfter(iv.getEndTime()));
+        if (!fits) return false;
+        List<Reservation> dayRes = reservations.findByReservationDateAndStatus(date, ReservationStatus.ACTIVE);
+        return !overlapsAny(dayRes, start, durationMin);
     }
 
     private boolean hasActive(LocalDate date) {

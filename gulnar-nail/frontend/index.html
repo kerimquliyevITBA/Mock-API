@@ -254,7 +254,11 @@
 
   .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-strong); border-top-color: var(--plum); animation: spin .8s linear infinite; display: inline-block; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .api-cfg { position: fixed; bottom: 12px; right: 12px; z-index: 60; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 11px; color: var(--ink-faint); box-shadow: var(--shadow); display: flex; gap: 8px; align-items: center; }
+  /* schedule cell colors */
+  .cell.booked { background: var(--warn-tint) !important; cursor: pointer; }
+  .cell.booked .nm { color: var(--warn); }
+  .cell.free { background: var(--ok-tint); color: var(--ok); }
+  .cell.closed { background: repeating-linear-gradient(45deg, var(--danger-tint), var(--danger-tint) 5px, color-mix(in srgb, var(--danger-tint) 70%, var(--danger) 30%) 5px, color-mix(in srgb, var(--danger-tint) 70%, var(--danger) 30%) 10px); }
 </style>
 </head>
 <body>
@@ -429,7 +433,7 @@
           <div class="add-slot-row" style="margin-top:14px">
             <div class="field"><label for="svc-name">Xidmət adı</label><input id="svc-name" type="text" placeholder="Məs: French manikür"></div>
             <div class="field" style="max-width:140px"><label for="svc-price">Qiymət (₼)</label><input id="svc-price" type="number" min="0" step="1" placeholder="30" inputmode="numeric"></div>
-            <div class="field" style="max-width:140px"><label for="svc-dur">Müddət (dəq)</label><input id="svc-dur" type="number" min="15" step="15" placeholder="60" inputmode="numeric"></div>
+            <div class="field" style="max-width:150px"><label for="svc-dur">Müddət</label><select id="svc-dur"><option value="20">20 dəq</option><option value="40">40 dəq</option><option value="60" selected>60 dəq</option><option value="80">80 dəq</option><option value="100">100 dəq</option><option value="120">120 dəq</option><option value="140">140 dəq</option><option value="160">160 dəq</option><option value="180">180 dəq</option></select></div>
             <button class="btn sm" onclick="addService()">Əlavə et</button>
           </div>
         </div>
@@ -448,9 +452,9 @@
           </div>
           <div class="sched-scroll"><table class="sched" id="sched-table"></table></div>
           <div class="legend-row">
-            <span><i class="sw" style="background:var(--plum-tint);border-color:var(--plum)"></i> Rezerv olunub</span>
-            <span><i class="sw" style="background:var(--surface)"></i> Boş (açıq saat)</span>
-            <span><i class="sw" style="background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--surface-2) 3px,var(--surface-2) 6px)"></i> Bağlı</span>
+            <span><i class="sw" style="background:var(--warn-tint);border-color:var(--warn)"></i> Rezerv olunub</span>
+            <span><i class="sw" style="background:var(--ok-tint);border-color:var(--ok)"></i> Boş</span>
+            <span><i class="sw" style="background:repeating-linear-gradient(45deg,var(--danger-tint),var(--danger-tint) 3px,color-mix(in srgb,var(--danger-tint) 60%,var(--danger) 40%) 3px,color-mix(in srgb,var(--danger-tint) 60%,var(--danger) 40%) 6px)"></i> Bağlı</span>
           </div>
         </div>
       </div>
@@ -460,7 +464,6 @@
 
 <div class="toast-wrap" id="toasts"></div>
 <div id="modal-root"></div>
-<div class="api-cfg" title="API endpoint"><span>API:</span> <span id="api-cfg-url">—</span></div>
 
 <script>
 /* ============================================================
@@ -481,7 +484,6 @@
   if (!/^https?:\/\//.test(base)) base = DEFAULT_API;
   window.API_BASE = base;
 })();
-document.getElementById("api-cfg-url").textContent = window.API_BASE;
 
 const AZ_MONTHS = ["Yanvar","Fevral","Mart","Aprel","May","İyun","İyul","Avqust","Sentyabr","Oktyabr","Noyabr","Dekabr"];
 const AZ_DOW = ["B.e","Ç.a","Çər","C.a","Cüm","Şən","Baz"];
@@ -595,8 +597,10 @@ async function loadPublicMonth(cursor) {
   const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
   const last  = new Date(cursor.getFullYear(), cursor.getMonth()+1, 0);
   const from = keyOf(first), to = keyOf(last);
+  const svc = getSelService();
+  const durParam = svc && svc.durationMin ? `&durationMin=${svc.durationMin}` : "";
   try {
-    const list = await api(`/api/v1/availability?from=${from}&to=${to}`);
+    const list = await api(`/api/v1/availability?from=${from}&to=${to}${durParam}`);
     availabilityMap = {};
     list.forEach(d => { availabilityMap[d.date] = d; });
   } catch (e) {
@@ -604,6 +608,7 @@ async function loadPublicMonth(cursor) {
     toast("Təqvim yüklənmədi: "+e.message,"err");
   }
   renderCal();
+  if (sel.date) renderSlots();
 }
 
 function openSlotsFor(k){ const d=availabilityMap[k]; if(!d||d.closed) return []; return d.slots||[]; }
@@ -833,7 +838,7 @@ function renderAcal(){
     const btn=document.createElement("button"); btn.className="cal-day"; btn.textContent=day;
     if(key===tK) btn.classList.add("today");
     const dayObj = adminAvailabilityMap[key];
-    if(dayObj && !dayObj.closed && (dayObj.slots||[]).length>0) btn.classList.add("has-slots");
+    if(dayObj && !dayObj.closed && (dayObj.intervals||[]).length>0) btn.classList.add("has-slots");
     if(dayObj && dayObj.closed) btn.classList.add("closed");
     if(adminSelDate===key) btn.classList.add("selected");
     btn.onclick=()=>{ adminSelDate=key; renderAcal(); renderAvailPanel(); };
@@ -843,60 +848,62 @@ function renderAcal(){
 
 function renderAvailPanel(){
   const p=document.getElementById("avail-slots-panel");
-  if(!adminSelDate){ p.innerHTML='<div class="slots-empty">Saat əlavə etmək üçün təqvimdən gün seçin.</div>'; return; }
+  if(!adminSelDate){ p.innerHTML='<div class="slots-empty">Aralıq əlavə etmək üçün təqvimdən gün seçin.</div>'; return; }
   const d=parseKey(adminSelDate); const key=adminSelDate;
-  const dayObj = adminAvailabilityMap[key] || {closed:false, slots:[]};
-  const slots = (dayObj.slots||[]).map(s=>s.time).sort();
-  const booked = new Set((dayObj.slots||[]).filter(s=>s.taken).map(s=>s.time));
-  let html=`<div class="day-title">${fmtLong(d)}</div><div class="day-sub">${dayObj.closed?"Bağlı gün":slots.length+" saat açıqdır"}</div>`;
+  const dayObj = adminAvailabilityMap[key] || {closed:false, intervals:[]};
+  const ivs = (dayObj.intervals||[]).slice().sort((a,b)=>a.start.localeCompare(b.start));
+  let html=`<div class="day-title">${fmtLong(d)}</div><div class="day-sub">${dayObj.closed?"Bağlı gün":ivs.length+" iş aralığı"}</div>`;
   if(dayObj.closed){
     html+=`<div class="closed-note">Bu gün bağlıdır — istifadəçilər rezerv edə bilməz.</div>
       <div class="day-actions"><button class="btn sm" onclick="openDay()">Günü aç</button></div>`;
   } else {
     html+=`<div class="chip-grid">`;
-    if(slots.length===0){ html+=`<span style="color:var(--ink-faint);font-size:14px">Hələ saat yoxdur — aşağıdan əlavə edin.</span>`; }
-    slots.forEach(s=>{ const isB=booked.has(s); html+=`<button class="chip${isB?" booked":""}" aria-pressed="true" title="${isB?"Rezerv var — silmək olmaz":"Silmək üçün klik"}" onclick="removeSlot('${s}')">${s}${isB?"":" ✕"}</button>`; });
+    if(ivs.length===0){ html+=`<span style="color:var(--ink-faint);font-size:14px">Hələ aralıq yoxdur — aşağıdan əlavə edin.</span>`; }
+    ivs.forEach(iv=>{ html+=`<button class="chip" aria-pressed="true" title="Silmək üçün klik" onclick="removeInterval('${iv.start}')">${iv.start}–${iv.end} ✕</button>`; });
     html+=`</div>
       <div class="add-slot-row">
-        <div class="field"><label for="new-slot">Saat əlavə et</label><input id="new-slot" type="time" step="900" value="12:00"></div>
-        <button class="btn sm" onclick="addSlot()">Əlavə et</button>
+        <div class="field" style="max-width:130px"><label for="iv-start">Başlanğıc</label><input id="iv-start" type="time" step="1200" value="09:00"></div>
+        <div class="field" style="max-width:130px"><label for="iv-end">Bitiş</label><input id="iv-end" type="time" step="1200" value="18:00"></div>
+        <button class="btn sm" onclick="addInterval()">Aralıq əlavə et</button>
       </div>
-      <div class="add-slot-row" style="margin-top:6px">
-        <span class="hint">Tez seç:</span>
-        ${["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"].filter(s=>!slots.includes(s)).map(s=>`<button class="chip" style="padding:5px 10px" onclick="quickAdd('${s}')">+ ${s}</button>`).join("")}
-      </div>
+      <div style="font-size:12px;color:var(--ink-faint);margin-top:4px">Saatlar 20 dəqiqənin misli olmalıdır. Xidmət müddəti bu aralığa sığmalıdır.</div>
       <div class="day-actions" style="margin-top:14px"><button class="btn ghost sm" onclick="closeDay()">Günü bağla</button></div>`;
   }
   p.innerHTML=html;
 }
 
-async function addSlot(){ const v=document.getElementById("new-slot").value; if(!v) return; quickAdd(v); }
-async function quickAdd(v){
+async function addInterval(){
+  const start = document.getElementById("iv-start").value;
+  const end   = document.getElementById("iv-end").value;
+  if(!start || !end) return;
   try {
-    await api(`/api/v1/admin/availability/days/${adminSelDate}/slots`, { method:"POST", body: { time: v.substring(0,5) }});
-    await loadAdminMonth(acalCursor); await loadPublicMonth(calCursor); await loadSchedule(); await loadStats();
-    renderAcal(); renderAvailPanel(); renderSched(); renderStats();
+    await api(`/api/v1/admin/availability/days/${adminSelDate}/intervals`, { method:"POST", body: { start: start.substring(0,5), end: end.substring(0,5) }});
+    await refreshAdminAvail();
   } catch(e){ toast(e.message,"warn"); }
 }
-async function removeSlot(s){
+async function removeInterval(start){
   try {
-    await api(`/api/v1/admin/availability/days/${adminSelDate}/slots/${s}`, { method:"DELETE" });
-    await loadAdminMonth(acalCursor); await loadPublicMonth(calCursor); await loadSchedule(); await loadStats();
-    renderAcal(); renderAvailPanel(); renderSched(); renderStats();
+    await api(`/api/v1/admin/availability/days/${adminSelDate}/intervals/${start}`, { method:"DELETE" });
+    await refreshAdminAvail();
   } catch(e){ toast(e.message,"warn"); }
+}
+async function refreshAdminAvail(){
+  await loadAdminMonth(acalCursor);
+  await loadPublicMonth(calCursor);
+  await loadSchedule();
+  await loadStats();
+  renderAcal(); renderAvailPanel(); renderSched(); renderStats();
 }
 async function closeDay(){
   try {
     await api(`/api/v1/admin/availability/days`, { method:"POST", body: { date: adminSelDate, closed: true }});
-    await loadAdminMonth(acalCursor); await loadPublicMonth(calCursor); await loadSchedule(); await loadStats();
-    renderAcal(); renderAvailPanel(); renderSched(); renderStats();
+    await refreshAdminAvail();
   } catch(e){ toast(e.message,"warn"); }
 }
 async function openDay(){
   try {
     await api(`/api/v1/admin/availability/days`, { method:"POST", body: { date: adminSelDate, closed: false }});
-    await loadAdminMonth(acalCursor); await loadPublicMonth(calCursor); await loadSchedule(); await loadStats();
-    renderAcal(); renderAvailPanel(); renderSched(); renderStats();
+    await refreshAdminAvail();
   } catch(e){ toast(e.message,"warn"); }
 }
 
@@ -924,38 +931,61 @@ async function loadSchedule(){
 }
 
 function renderSched(){
+  const STEP = 20;
   const table=document.getElementById("sched-table");
   const days=[]; for(let i=0;i<7;i++){ const d=new Date(schedMon); d.setDate(schedMon.getDate()+i); days.push(d); }
   const tK=todayKey();
   const data = window.__schedData || {avail:[], res:[]};
   const availByDate = {}; data.avail.forEach(d=>availByDate[d.date]=d);
-  const resByCell = {}; data.res.filter(r=>r.status==="ACTIVE").forEach(r=>{ resByCell[r.date+" "+r.time]=r; });
 
-  // union of all slots across the week
-  const slotSet=new Set();
-  days.forEach(d=>{ const dv=availByDate[keyOf(d)]; if(dv && !dv.closed) (dv.slots||[]).forEach(s=>slotSet.add(s.time)); });
-  const slots=[...slotSet].sort();
+  // rows = union of 20-min time labels covered by any interval this week
+  const timeSet=new Set();
+  days.forEach(d=>{ const dv=availByDate[keyOf(d)]; if(dv && !dv.closed) (dv.intervals||[]).forEach(iv=>{
+    let m = toMin(iv.start), e = toMin(iv.end);
+    for(; m<e; m+=STEP) timeSet.add(fmtMin(m));
+  }); });
+  const times=[...timeSet].sort();
+
+  // reservations map: date -> array of {startMin, endMin, res}
+  const resByDate = {};
+  data.res.filter(r=>r.status==="ACTIVE").forEach(r=>{
+    (resByDate[r.date] = resByDate[r.date] || []).push({ startMin: toMin(r.time), endMin: toMin(r.time) + (r.durationMin||60), res: r });
+  });
+
   const monEnd=new Date(days[6]);
   let head=`<thead><tr><th class="time-col">${fmtDate(schedMon)}–${fmtDate(monEnd)}</th>`;
   days.forEach(d=>{ const isT=keyOf(d)===tK; head+=`<th class="${isT?"today":""}">${AZ_DOW[mondayIndex(d)]}<br><span style="font-weight:400;color:var(--ink-faint)">${d.getDate()}</span></th>`; });
   head+=`</tr></thead>`;
   let body="<tbody>";
-  if(slots.length===0){ body+=`<tr><td colspan="8" style="padding:24px;color:var(--ink-faint)">Bu həftə üçün açıq saat yoxdur.</td></tr>`; }
-  slots.forEach(s=>{
-    body+=`<tr><th class="time-col">${s}</th>`;
+  if(times.length===0){ body+=`<tr><td colspan="8" style="padding:24px;color:var(--ink-faint)">Bu həftə üçün açıq aralıq yoxdur.</td></tr>`; }
+
+  times.forEach(t=>{
+    body+=`<tr><th class="time-col">${t}</th>`;
+    const tMin = toMin(t);
     days.forEach(d=>{
       const key=keyOf(d); const dv=availByDate[key];
-      const open = dv && !dv.closed && (dv.slots||[]).some(x=>x.time===s);
-      const r=resByCell[key+" "+s];
-      if(!open){ body+=`<td><div class="cell closed"></div></td>`; }
-      else if(r){ body+=`<td><div class="cell booked" onclick="resModal(${r.id})"><span class="nm">${escapeHtml(r.customerName)}</span><span class="ph">${escapeHtml(r.phone)}</span></div></td>`; }
-      else { body+=`<td><div class="cell free"><span class="dash">—</span></div></td>`; }
+      const open = dv && !dv.closed && (dv.intervals||[]).some(iv => tMin >= toMin(iv.start) && tMin < toMin(iv.end));
+      if(!open){ body+=`<td><div class="cell closed"></div></td>`; return; }
+      const arr = resByDate[key] || [];
+      const hit = arr.find(x => tMin >= x.startMin && tMin < x.endMin);
+      if(hit){
+        // Only render label at reservation's first row; otherwise blank booked cell
+        if(hit.startMin === tMin){
+          body+=`<td><div class="cell booked" onclick="resModal(${hit.res.id})"><span class="nm">${escapeHtml(hit.res.customerName)}</span><span class="ph">${escapeHtml(hit.res.phone)}</span><span class="ph">${hit.res.time}·${hit.res.durationMin||60}dq</span></div></td>`;
+        } else {
+          body+=`<td><div class="cell booked" onclick="resModal(${hit.res.id})"></div></td>`;
+        }
+      } else {
+        body+=`<td><div class="cell free"><span class="dash">boş</span></div></td>`;
+      }
     });
     body+=`</tr>`;
   });
   body+="</tbody>";
   table.innerHTML=head+body;
 }
+function toMin(t){ const [h,m]=String(t).split(":").map(Number); return h*60+(m||0); }
+function fmtMin(m){ return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0"); }
 
 async function loadStats(){
   try { const s = await api("/api/v1/admin/stats"); window.__stats = s; } catch(e){ window.__stats = null; }
@@ -1061,15 +1091,12 @@ fillPrefixes();
 const sPhoneEl=document.getElementById("s-phone");
 if(sPhoneEl) sPhoneEl.addEventListener("input",function(){ this.value=digitsOnly(this.value).slice(0,7); });
 document.getElementById("s-code").addEventListener("input",function(){ this.value=this.value.toUpperCase(); });
-document.getElementById("c-service").addEventListener("change",function(){ sel.serviceId = parseInt(this.value,10); renderSummary(); });
+document.getElementById("c-service").addEventListener("change",function(){ sel.serviceId = parseInt(this.value,10); sel.time = null; renderSummary(); loadPublicMonth(calCursor); });
 
 (async function boot(){
   await loadPublicServices();
   await loadPublicMonth(calCursor);
   renderSlots(); renderSummary();
-
-  const a = getAdmin();
-  if (a) { /* still logged in */ }
 })();
 </script>
 

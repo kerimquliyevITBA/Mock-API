@@ -9,6 +9,14 @@ import java.util.List;
 
 public class AvailabilityDto {
 
+    public static final int STEP_MIN = 20;
+
+    public record IntervalView(
+            Long id,
+            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm") LocalTime start,
+            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm") LocalTime end
+    ) {}
+
     public record SlotView(
             @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm") LocalTime time,
             boolean taken,
@@ -19,6 +27,7 @@ public class AvailabilityDto {
             LocalDate date,
             boolean closed,
             String note,
+            List<IntervalView> intervals,
             List<SlotView> slots
     ) {}
 
@@ -28,7 +37,8 @@ public class AvailabilityDto {
             String note
     ) {}
 
-    public record AddSlotReq(
-            @NotNull @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm") LocalTime time
+    public record AddIntervalReq(
+            @NotNull @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm") LocalTime start,
+            @NotNull @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm") LocalTime end
     ) {}
 }
