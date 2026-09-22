@@ -1,0 +1,283 @@
+{
+  "info": {
+    "_postman_id": "b6a3e5d0-1a2b-4c3d-9e0f-000000000001",
+    "name": "Gülnar Nail API",
+    "description": "Gülnar Nail booking backend — public + admin endpoints. Set the `baseUrl` collection variable to your Railway URL (e.g. https://gulnar-nail-production.up.railway.app). After a successful admin login the `token` variable is populated automatically by the Tests script.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://gulnar-nail-production.up.railway.app", "type": "string" },
+    { "key": "token",   "value": "",                                                "type": "string" },
+    { "key": "adminUsername", "value": "admin",     "type": "string" },
+    { "key": "adminPassword", "value": "Admin123!", "type": "string" },
+    { "key": "code",    "value": "GN-0000", "type": "string" },
+    { "key": "phonePrefix", "value": "050",     "type": "string" },
+    { "key": "phoneLocal",  "value": "1234567", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ]
+  },
+  "item": [
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/health", "host": ["{{baseUrl}}"], "path": ["api","v1","health"] }
+          }
+        },
+        {
+          "name": "List services",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/services", "host": ["{{baseUrl}}"], "path": ["api","v1","services"] }
+          }
+        },
+        {
+          "name": "Availability (range)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/availability?from=2026-09-22&to=2026-10-22",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","availability"],
+              "query": [
+                { "key": "from", "value": "2026-09-22" },
+                { "key": "to",   "value": "2026-10-22" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  var body = pm.response.json();",
+                  "  if (body.code) { pm.collectionVariables.set('code', body.code); }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nərmin Əliyeva\",\n  \"prefix\": \"{{phonePrefix}}\",\n  \"phone\": \"{{phoneLocal}}\",\n  \"serviceId\": 1,\n  \"date\": \"2026-09-25\",\n  \"time\": \"14:00\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/reservations", "host": ["{{baseUrl}}"], "path": ["api","v1","reservations"] }
+          }
+        },
+        {
+          "name": "Reservation status",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code}}\",\n  \"prefix\": \"{{phonePrefix}}\",\n  \"phone\": \"{{phoneLocal}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/reservations/status", "host": ["{{baseUrl}}"], "path": ["api","v1","reservations","status"] }
+          }
+        },
+        {
+          "name": "Cancel reservation (customer)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code}}\",\n  \"prefix\": \"{{phonePrefix}}\",\n  \"phone\": \"{{phoneLocal}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/reservations/cancel", "host": ["{{baseUrl}}"], "path": ["api","v1","reservations","cancel"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (populates {{token}})",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', function () { pm.response.to.have.status(200); });",
+                  "var body = pm.response.json();",
+                  "if (body && body.token) {",
+                  "  pm.collectionVariables.set('token', body.token);",
+                  "  console.log('token stored');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","login"] }
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/me", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin — Services",
+      "item": [
+        {
+          "name": "List all services (admin)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/services", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","services"] }
+          }
+        },
+        {
+          "name": "Create service",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"French manikür\",\n  \"price\": 35.00,\n  \"durationMin\": 60,\n  \"active\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/services", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","services"] }
+          }
+        },
+        {
+          "name": "Update service",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"French manikür\",\n  \"price\": 40.00,\n  \"durationMin\": 75,\n  \"active\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/services/1", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","services","1"] }
+          }
+        },
+        {
+          "name": "Delete (deactivate) service",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/services/1", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","services","1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin — Availability",
+      "item": [
+        {
+          "name": "Admin availability (range, incl. past + taken)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/availability?from=2026-09-22&to=2026-10-22",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","availability"],
+              "query": [
+                { "key": "from", "value": "2026-09-22" },
+                { "key": "to",   "value": "2026-10-22" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Upsert day (open / close)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-09-25\",\n  \"closed\": false,\n  \"note\": null\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/availability/days", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","availability","days"] }
+          }
+        },
+        {
+          "name": "Delete day",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/availability/days/2026-09-25", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","availability","days","2026-09-25"] }
+          }
+        },
+        {
+          "name": "Add slot to day",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"time\": \"18:30\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/availability/days/2026-09-25/slots", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","availability","days","2026-09-25","slots"] }
+          }
+        },
+        {
+          "name": "Remove slot from day",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/availability/days/2026-09-25/slots/18:30", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","availability","days","2026-09-25","slots","18:30"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin — Reservations",
+      "item": [
+        {
+          "name": "List reservations (range)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/reservations?from=2026-09-22&to=2026-10-22",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","admin","reservations"],
+              "query": [
+                { "key": "from", "value": "2026-09-22" },
+                { "key": "to",   "value": "2026-10-22" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel reservation (admin)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/reservations/1/cancel", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","reservations","1","cancel"] }
+          }
+        },
+        {
+          "name": "Dashboard stats",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/stats", "host": ["{{baseUrl}}"], "path": ["api","v1","admin","stats"] }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -468,11 +468,14 @@
      4. Default: current origin
    ============================================================ */
 (function () {
+  var DEFAULT_API = "https://gulnar-nail-production.up.railway.app";
   var url = new URL(location.href);
   var qp = url.searchParams.get("api");
   if (qp) { try { localStorage.setItem("gulnar_api_base", qp); } catch(e){} }
   var stored = null; try { stored = localStorage.getItem("gulnar_api_base"); } catch(e){}
-  window.API_BASE = window.API_BASE || qp || stored || location.origin;
+  var base = window.API_BASE || qp || stored || DEFAULT_API;
+  if (!/^https?:\/\//.test(base)) base = DEFAULT_API;
+  window.API_BASE = base;
 })();
 document.getElementById("api-cfg-url").textContent = window.API_BASE;
 
