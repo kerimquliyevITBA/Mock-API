@@ -1,0 +1,48 @@
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: gulnar-nail
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:5}
+      minimum-idle: 1
+      connection-init-sql: "SET search_path TO ${DB_SCHEMA:gulnar}, public"
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        default_schema: ${DB_SCHEMA:gulnar}
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+  flyway:
+    enabled: true
+    schemas: ${DB_SCHEMA:gulnar}
+    default-schema: ${DB_SCHEMA:gulnar}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-please-change-me-please-32chars-min}
+    ttl-hours: ${JWT_TTL_HOURS:8}
+  admin:
+    bootstrap-username: ${ADMIN_USERNAME:admin}
+    bootstrap-password: ${ADMIN_PASSWORD:1234}
+    bootstrap-name: ${ADMIN_NAME:Administrator}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:*}
+  seed:
+    demo-data: ${SEED_DEMO:true}
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.gulnar.nail: INFO
