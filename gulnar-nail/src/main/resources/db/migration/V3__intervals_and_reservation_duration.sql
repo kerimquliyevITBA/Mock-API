@@ -39,18 +39,23 @@ FROM services s
 WHERE s.id = r.service_id
   AND r.duration_min = 60;
 
--- Round any existing durations up to the nearest multiple of 20 BEFORE
--- adding the check constraint, otherwise legacy 45/90/etc. rows break it.
+-- Normalize any legacy durations that aren't a multiple of 20 (round up):
+--   45 -> 60, 90 -> 100, 25 -> 40, 30 -> 40, ...
+-- 0 or negative values are forced to the default 60.
 UPDATE services
-   SET duration_min = ((duration_min + 19) / 20) * 20
- WHERE duration_min % 20 <> 0;
+   SET duration_min = GREATEST(60, ((duration_min + 19) / 20) * 20)
+ WHERE duration_min IS NULL
+    OR duration_min <= 0
+    OR duration_min % 20 <> 0;
 
 UPDATE reservations
-   SET duration_min = ((duration_min + 19) / 20) * 20
- WHERE duration_min % 20 <> 0;
+   SET duration_min = GREATEST(60, ((duration_min + 19) / 20) * 20)
+ WHERE duration_min IS NULL
+    OR duration_min <= 0
+    OR duration_min % 20 <> 0;
 
+-- The multiple-of-20 rule is enforced by the DTO validator; not adding a
+-- DB CHECK because a legacy row with an odd value would keep breaking
+-- migrations, and the API is the only writer.
 ALTER TABLE services
     DROP CONSTRAINT IF EXISTS chk_services_duration_step;
-ALTER TABLE services
-    ADD CONSTRAINT chk_services_duration_step
-    CHECK (duration_min > 0 AND duration_min % 20 = 0);

@@ -18,6 +18,10 @@ public class GulnarNailApplication {
     private static final Logger log = LoggerFactory.getLogger(GulnarNailApplication.class);
 
     public static void main(String[] args) {
+        // Pin all LocalDate/LocalTime "now" calls to Baku wall-clock, so
+        // past-time validation matches what the customer sees on the page.
+        java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Baku"));
+        System.setProperty("user.timezone", "Asia/Baku");
         SpringApplication.run(GulnarNailApplication.class, args);
     }
 

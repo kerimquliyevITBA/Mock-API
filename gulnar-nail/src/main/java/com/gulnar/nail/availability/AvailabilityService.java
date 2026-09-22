@@ -103,11 +103,11 @@ public class AvailabilityService {
     @Transactional
     public AvailabilityDay upsertDay(LocalDate date, Boolean closed, String note) {
         if (date == null) throw new ResponseStatusException(BAD_REQUEST, "Tarix tələb olunur");
-        AvailabilityDay d = days.findByDate(date).orElseGet(() -> {
-            AvailabilityDay nd = new AvailabilityDay();
-            nd.setDate(date);
-            return nd;
-        });
+        AvailabilityDay existing = days.findByDate(date).orElse(null);
+        if (existing == null && date.isBefore(LocalDate.now()))
+            throw new ResponseStatusException(BAD_REQUEST, "Keçmiş tarix üçün gün yaradıla bilməz");
+        AvailabilityDay d = existing != null ? existing : new AvailabilityDay();
+        if (existing == null) d.setDate(date);
         if (closed != null) {
             if (closed && hasActive(date))
                 throw new ResponseStatusException(CONFLICT, "Bu gündə aktiv rezerv var — bağlamaq olmaz");
