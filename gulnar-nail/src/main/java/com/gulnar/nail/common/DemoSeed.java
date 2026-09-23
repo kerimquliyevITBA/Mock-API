@@ -2,8 +2,8 @@ package com.gulnar.nail.common;
 
 import com.gulnar.nail.availability.AvailabilityDay;
 import com.gulnar.nail.availability.AvailabilityDayRepository;
-import com.gulnar.nail.availability.AvailabilityInterval;
-import com.gulnar.nail.availability.AvailabilityIntervalRepository;
+import com.gulnar.nail.availability.AvailabilitySlot;
+import com.gulnar.nail.availability.AvailabilitySlotRepository;
 import com.gulnar.nail.service.ServiceEntity;
 import com.gulnar.nail.service.ServiceRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Component
 @Order(10)
@@ -23,14 +24,14 @@ public class DemoSeed implements CommandLineRunner {
 
     private final ServiceRepository services;
     private final AvailabilityDayRepository days;
-    private final AvailabilityIntervalRepository intervals;
+    private final AvailabilitySlotRepository slots;
     private final boolean enabled;
 
-    public DemoSeed(ServiceRepository services, AvailabilityDayRepository days, AvailabilityIntervalRepository intervals,
+    public DemoSeed(ServiceRepository services, AvailabilityDayRepository days, AvailabilitySlotRepository slots,
                     @Value("${app.seed.demo-data}") boolean enabled) {
         this.services = services;
         this.days = days;
-        this.intervals = intervals;
+        this.slots = slots;
         this.enabled = enabled;
     }
 
@@ -40,14 +41,15 @@ public class DemoSeed implements CommandLineRunner {
         if (!enabled) return;
 
         if (services.count() == 0) {
-            services.save(svc("Manikür",       new BigDecimal("25"), 40));
+            services.save(svc("Manikür",       new BigDecimal("25"), 45));
             services.save(svc("Pedikür",       new BigDecimal("35"), 60));
             services.save(svc("Gel-lak",       new BigDecimal("30"), 60));
-            services.save(svc("Dırnaq uzatma", new BigDecimal("50"), 120));
+            services.save(svc("Dırnaq uzatma", new BigDecimal("50"), 90));
         }
 
         if (days.count() == 0) {
             LocalDate today = LocalDate.now();
+            List<String> daySlots = List.of("10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00");
             for (int i = 0; i < 21; i++) {
                 LocalDate date = today.plusDays(i);
                 boolean closed = date.getDayOfWeek() == DayOfWeek.SUNDAY;
@@ -56,7 +58,12 @@ public class DemoSeed implements CommandLineRunner {
                 d.setClosed(closed);
                 d = days.save(d);
                 if (!closed) {
-                    intervals.save(interval(d, "10:00", "19:00"));
+                    for (String t : daySlots) {
+                        AvailabilitySlot s = new AvailabilitySlot();
+                        s.setDay(d);
+                        s.setSlotTime(LocalTime.parse(t));
+                        slots.save(s);
+                    }
                 }
             }
         }
@@ -69,13 +76,5 @@ public class DemoSeed implements CommandLineRunner {
         e.setDurationMin(min);
         e.setActive(true);
         return e;
-    }
-
-    private static AvailabilityInterval interval(AvailabilityDay day, String start, String end) {
-        AvailabilityInterval iv = new AvailabilityInterval();
-        iv.setDay(day);
-        iv.setStartTime(LocalTime.parse(start));
-        iv.setEndTime(LocalTime.parse(end));
-        return iv;
     }
 }

@@ -18,7 +18,7 @@ public class AvailabilityDay {
     @Column(name = "updated_at", nullable = false) private OffsetDateTime updatedAt = OffsetDateTime.now();
 
     @OneToMany(mappedBy = "day", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<AvailabilityInterval> intervals = new ArrayList<>();
+    private List<AvailabilitySlot> slots = new ArrayList<>();
 
     @PreUpdate void touch() { this.updatedAt = OffsetDateTime.now(); }
 
@@ -29,5 +29,5 @@ public class AvailabilityDay {
     public void setClosed(boolean closed) { this.closed = closed; }
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
-    public List<AvailabilityInterval> getIntervals() { return intervals; }
+    public List<AvailabilitySlot> getSlots() { return slots; }
 }

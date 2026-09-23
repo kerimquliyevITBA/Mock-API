@@ -48,8 +48,12 @@ public class ReservationService {
             throw new ResponseStatusException(BAD_REQUEST, "Keçmiş tarix/saata rezerv olmaz");
 
         int duration = svc.getDurationMin();
-        if (!availability.canBook(req.date(), req.time(), duration))
-            throw new ResponseStatusException(CONFLICT, "Bu tarix/saat açıq deyil və ya digər rezervlə üst-üstə düşür");
+
+        if (!availability.isSlotOpen(req.date(), req.time()))
+            throw new ResponseStatusException(CONFLICT, "Bu tarix/saat açıq deyil");
+
+        if (repo.existsByReservationDateAndReservationTimeAndStatus(req.date(), req.time(), ReservationStatus.ACTIVE))
+            throw new ResponseStatusException(CONFLICT, "Bu saat artıq tutulub");
 
         if (repo.existsByPhoneAndReservationDateAndReservationTimeAndStatus(phone, req.date(), req.time(), ReservationStatus.ACTIVE))
             throw new ResponseStatusException(CONFLICT, "Bu nömrə ilə eyni tarix/saata rezerv artıq var");
